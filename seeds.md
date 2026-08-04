@@ -2,7 +2,8 @@
 
 ## 쉘 식별자 → 파일 매핑
 quiz → templates/quiz.html · speed → templates/speed-game.html ·
-pair → templates/pair-game.html · order → templates/order-game.html
+pair → templates/pair-game.html · order → templates/order-game.html ·
+graph → templates/graph-match.html
 
 ## 아이디어 필터 — 3가지 질문 (기획 카드에 각 한 줄 기록)
 1. **종이보다 나은가?** 근거 후보: 즉각 피드백 / 랜덤화·무한 재도전 / 시간 압박·게임 보상 /
@@ -29,13 +30,16 @@ pair → templates/pair-game.html · order → templates/order-game.html
 - 정비례/반비례 판별 — `speed` 또는 `quiz`
 - 함수다/함수가 아니다 — `speed` — 대응 개념 오개념 직격
 - 인수분해 짝맞추기 — `pair`
-- 일차함수 식↔그래프 특징 짝맞추기 — `pair`
+- 일차함수 식↔그래프 고르기 — `graph` — 기울기 부호·y절편 오개념 직격
+- 이차함수 꼭짓점·폭 비교 — `graph` 또는 `order`(폭이 좁은 순서로 배열)
+- 부등호로 수 크기 배열 — `order`
 - 대푯값(평균·중앙값·최빈값) 형성평가 — `quiz`
 - 확률 개념 OX 러시 — `quiz`(ox 위주)
 
 ### 고등 (대수 / 미적분Ⅰ / 확률과 통계)
 - 수렴/발산 스피드 분류 — `speed`
 - 함수 그래프↔도함수 부호 짝맞추기 — `pair`
+- 이차·유리함수 식↔그래프 고르기 — `graph`
 - 지수·로그 계산 형성평가 — `quiz`
 - 경우의 수(순열/조합 구분) 형성평가 — `quiz` — 대표 오개념: 순서 고려 여부
 

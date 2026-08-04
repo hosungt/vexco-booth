@@ -36,7 +36,8 @@
   .section-head h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px; word-break: keep-all; }
   .section-head p { font-size: 14px; color: #6b7280; margin: 0; word-break: keep-all; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 14px; }
+  /* min(400px, 100%) — 화면이 400px보다 좁으면 1열로 접히게 해 가로 오버플로를 막는다 */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr)); gap: 14px; }
 
   .card {
     background: #ffffff;
@@ -131,7 +132,8 @@
   <div class="grid">
     <div class="card">
       <h3>📝 형성평가</h3>
-      <p class="desc">문항을 하나씩 보여주고, 답을 고르면 바로 채점해요. <b>틀린 선택지마다 다른 이유</b>를 보여줄 수 있어요.</p>
+      <p class="desc"><b>객관식 · 단답형 · OX</b>를 섞어 낼 수 있어요. 답을 고르면 바로 채점하고,
+        <b>틀린 선택지마다 다른 이유</b>를 보여줍니다.</p>
       <p class="uses"><b>이런 데 써요</b> · 정비례 판별 · 비와 비율 · 대푯값 · 지수·로그 계산</p>
       <p class="why">종이보다 나은 이유 — 왜 틀렸는지 그 자리에서 알려주고, 몇 번이든 다시 풀 수 있어요.</p>
       <a class="open-btn" href="templates/quiz.html" target="_blank" rel="noopener">예시 열어보기</a>
@@ -147,18 +149,27 @@
 
     <div class="card">
       <h3>🃏 짝 맞추기</h3>
-      <p class="desc">카드를 뒤집어 <b>짝이 되는 둘</b>을 찾아요. 식과 인수분해 결과, 용어와 뜻처럼 일대일로 대응되면 됩니다.</p>
+      <p class="desc">카드가 <b>모두 펼쳐진 상태</b>에서 짝이 되는 둘을 골라요. 식과 인수분해 결과, 용어와 뜻처럼 일대일로 대응되면 됩니다.</p>
       <p class="uses"><b>이런 데 써요</b> · 인수분해 · 곱셈구구 · 도형↔넓이 공식 · 삼각비 값↔각도</p>
-      <p class="why">종이보다 나은 이유 — 즉각 판정과 무한 반복. 카드 위치가 매번 바뀌어요.</p>
+      <p class="why">종이보다 나은 이유 — 즉각 판정과 무한 반복. <b>기억력이 아니라 판단력</b>을 씁니다(카드는 뒤집히지 않아요).</p>
       <a class="open-btn" href="templates/pair-game.html" target="_blank" rel="noopener">예시 열어보기</a>
     </div>
 
     <div class="card">
       <h3>🔢 순서대로 배열하기</h3>
-      <p class="desc">섞인 항목을 <b>▲▼ 버튼</b>으로 올바른 순서에 놓아요. 확인을 누르면 자리마다 맞았는지 표시돼요.</p>
-      <p class="uses"><b>이런 데 써요</b> · 수의 크기 비교 · 계산 순서 · 풀이 단계 · 작도 순서</p>
-      <p class="why">종이보다 나은 이유 — 순서를 <b>직접 바꿔보며</b> 시행착오할 수 있어요.</p>
+      <p class="desc"><b>&lt;보기&gt;의 카드를 빈 칸에 눌러 채워요.</b> 잘못 놓으면 다시 눌러 빼면 돼요. 확인하면 자리마다 맞았는지 표시됩니다.</p>
+      <p class="uses"><b>이런 데 써요</b> · 부등호로 수 크기 비교 · <b>그래프의 폭·기울기 비교</b> · 계산 순서 · 풀이 단계</p>
+      <p class="why">종이보다 나은 이유 — 지우개 없이 <b>몇 번이든 다시 놓아보며</b> 시행착오할 수 있어요.</p>
       <a class="open-btn" href="templates/order-game.html" target="_blank" rel="noopener">예시 열어보기</a>
+    </div>
+
+    <div class="card">
+      <h3>📈 식 ↔ 그래프 연결하기</h3>
+      <p class="desc"><b>식을 보고 그래프를 고르고</b>, 거꾸로 <b>그래프를 보고 식을 골라요.</b>
+        그래프는 자동으로 그려지니 식만 정해 주시면 됩니다.</p>
+      <p class="uses"><b>이런 데 써요</b> · 일차함수 기울기·절편 · 이차함수 꼭짓점·폭 · 반비례 · 그래프 해석</p>
+      <p class="why">종이보다 나은 이유 — 비슷하지만 <b>미묘하게 다른 그래프 4개</b>를 나란히 놓고 고르게 할 수 있어요. 판서로는 한 번에 한 장뿐이죠.</p>
+      <a class="open-btn" href="templates/graph-match.html" target="_blank" rel="noopener">예시 열어보기</a>
     </div>
   </div>
 

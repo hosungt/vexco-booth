@@ -35,10 +35,15 @@
   렌더링 규칙: 모든 CONFIG 문자열은 renderText()로 escape 후 &lt;sup&gt;/&lt;sub&gt;
   태그만 화이트리스트로 되돌려 <sup>/<sub>(제곱·아래첨자 표기)만 허용한다.
 
-  조작 방식: 셔플된 항목 전체가 세로 목록 하나로 항상 표시된다(별도의 대기열은 없다).
-  각 항목 옆 ▲(위로)/▼(아래로) 버튼이 기본 조작이며 언제나 화면에 보인다(첫 항목은 ▲,
-  마지막 항목은 ▼가 비활성화). [확인]을 누르면 위치별 정오(○/×)가 표시되고, 전부 맞으면
-  완료 화면으로, 아니면 그 상태 그대로 계속 조작해 재시도할 수 있다.
+  용도: 부등호로 수 크기 비교, 그래프의 폭·기울기 비교 등 순서를 판단하는 다양한
+  활동에 쓴다.
+
+  조작 방식: 화면 위쪽에 정답 순서를 채울 빈 칸(슬롯) N개가 번호(1~N)와 함께 나열되고,
+  그 아래 <보기> 영역에 셔플된 항목 카드가 놓인다. 보기 카드를 누르면 가장 앞의 빈
+  칸에 들어가고, 채워진 칸을 다시 누르면 보기로 되돌아간다(취소). 드래그는 지원하지
+  않는다. 모든 칸이 채워져야 [확인] 버튼이 활성화되며, 누르면 칸마다 정오(○/×)가
+  표시된다. 전부 맞으면 완료 화면([다시 도전] = 완전 리셋·재셔플)으로 넘어가고,
+  틀리면 그 자리에서 카드를 빼고 다시 놓아 재시도할 수 있다(재배치 시 표시는 초기화).
 -->
 <title>순서 배열</title>
 <style>
@@ -97,40 +102,52 @@
   .prompt { font-size: 17px; font-weight: 600; margin: 0 0 16px; word-break: keep-all; overflow-wrap: break-word; }
   .hint { font-size: 13px; color: #6b7280; margin: -8px 0 14px; }
 
-  .list { display: flex; flex-direction: column; gap: 10px; }
-  .row {
-    display: flex; align-items: center; gap: 10px;
-    min-height: 52px; padding: 8px 12px;
+  .slots {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px; margin-bottom: 14px;
+  }
+  .slot {
+    min-height: 64px; padding: 8px 6px;
+    border: 2px dashed #e5e7eb; border-radius: 12px;
+    background: #f8fafc;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    text-align: center;
+  }
+  .slot-filled { border-style: solid; border-color: var(--primary); background: #ffffff; cursor: pointer; }
+  .slot-filled:hover { background: var(--primary-light); }
+  .slot.correct { border-color: #16a34a; background: #f0fdf4; }
+  .slot.wrong { border-color: #dc2626; background: #fef2f2; }
+
+  .slot-num {
+    flex: none; width: 24px; height: 24px; border-radius: 50%;
+    background: #e5e7eb; color: #374151; font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .slot-filled .slot-num { background: var(--primary); color: #ffffff; }
+  .slot.correct .slot-num { background: #16a34a; }
+  .slot.wrong .slot-num { background: #dc2626; }
+  .slot-text { font-size: 14px; word-break: keep-all; overflow-wrap: break-word; }
+  .slot-icon { font-weight: 700; font-size: 16px; }
+  .slot.correct .slot-icon { color: #16a34a; }
+  .slot.wrong .slot-icon { color: #dc2626; }
+
+  .bank-label {
+    font-size: 13px; font-weight: 700; color: #374151;
+    margin: 4px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #e5e7eb;
+  }
+  .bank {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 8px; margin-bottom: 4px;
+  }
+  .bank-card {
+    min-height: 48px; padding: 10px 8px;
     border: 2px solid #e5e7eb; border-radius: 12px;
-    background: #ffffff;
+    background: #ffffff; font-size: 14px; cursor: pointer; font-family: inherit;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+    word-break: keep-all; overflow-wrap: break-word;
   }
-  .row.correct { border-color: #16a34a; background: #f0fdf4; }
-  .row.wrong { border-color: #dc2626; background: #fef2f2; }
-
-  .row-move { display: flex; flex-direction: column; gap: 4px; flex: none; }
-  .move-btn {
-    width: 44px; height: 44px; padding: 0;
-    border: 2px solid #e5e7eb; border-radius: 8px;
-    background: #ffffff; color: #374151;
-    font-size: 15px; cursor: pointer; font-family: inherit;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .move-btn:not(:disabled):hover { border-color: var(--primary); color: var(--primary); }
-  .move-btn:not(:disabled):active { background: var(--primary-light); }
-  .move-btn:disabled { opacity: .35; cursor: default; }
-
-  .row-body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; }
-  .row-num {
-    flex: none; width: 26px; height: 26px; border-radius: 50%;
-    background: #e5e7eb; color: #374151; font-size: 13px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .row.correct .row-num { background: #16a34a; color: #ffffff; }
-  .row.wrong .row-num { background: #dc2626; color: #ffffff; }
-  .row-text { flex: 1; min-width: 0; font-size: 15px; word-break: keep-all; overflow-wrap: break-word; }
-  .row-icon { flex: none; font-weight: 700; font-size: 18px; }
-  .row.correct .row-icon { color: #16a34a; }
-  .row.wrong .row-icon { color: #dc2626; }
+  .bank-card:hover { border-color: var(--primary); color: var(--primary); }
+  .bank-card:active { background: var(--primary-light); }
 
   .btn-primary {
     display: block; width: 100%; min-height: 48px;
@@ -139,6 +156,8 @@
     padding: 12px 16px; margin-top: 16px;
   }
   .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:disabled { opacity: .4; cursor: default; }
+  .btn-primary:disabled:hover { background: var(--primary); }
 
   .result-card { text-align: center; }
   .result-icon { font-size: 40px; margin-bottom: 4px; }
@@ -320,58 +339,71 @@
     return shuffled;
   }
 
-  // order 배열에서 from 위치 항목을 to 위치로 옮긴다(제자리 변경). 인접 이동(▲/▼)은
-  // 결과적으로 스왑과 동일하다.
-  function moveOrderItem(order, from, to) {
-    if (to < 0 || to >= order.length || from === to) return;
-    var item = order.splice(from, 1)[0];
-    order.splice(to, 0, item);
-  }
-
   /* ===== order 전용: 상태 · 렌더링 ===== */
 
   var runtime = null;
+
+  function makeEmptySlots(n) {
+    var s = [];
+    for (var i = 0; i < n; i++) s.push(null);
+    return s;
+  }
 
   function initRuntime(cfg) {
     runtime = {
       cfg: cfg,
       items: cfg.items,
-      order: shuffleIndices(cfg.items.length),
+      itemOrder: shuffleIndices(cfg.items.length),
+      slots: makeEmptySlots(cfg.items.length),
       checked: false,
       results: null
     };
     renderPlayScreen();
   }
 
-  function listHtml() {
-    var n = runtime.order.length;
-    return '<div class="list">' + runtime.order.map(function (idx, pos) {
-      var cls = 'row';
+  // 아직 어느 칸에도 놓이지 않은 항목의 인덱스를, 보기 영역에 보여줄 순서(itemOrder) 그대로 반환.
+  function bankIndices() {
+    return runtime.itemOrder.filter(function (i) { return runtime.slots.indexOf(i) === -1; });
+  }
+
+  function slotsHtml() {
+    return '<div class="slots">' + runtime.slots.map(function (itemIdx, pos) {
+      if (itemIdx === null) {
+        return '<div class="slot"><span class="slot-num">' + (pos + 1) + '</span></div>';
+      }
+      var cls = 'slot slot-filled';
       var icon = '';
       if (runtime.checked) {
-        if (runtime.results[pos]) { cls += ' correct'; icon = '<span class="row-icon">○</span>'; }
-        else { cls += ' wrong'; icon = '<span class="row-icon">×</span>'; }
+        if (runtime.results[pos]) { cls += ' correct'; icon = '<span class="slot-icon">○</span>'; }
+        else { cls += ' wrong'; icon = '<span class="slot-icon">×</span>'; }
       }
-      return '<div class="' + cls + '">' +
-        '<div class="row-move">' +
-        '<button type="button" class="move-btn" data-dir="up" data-pos="' + pos + '"' + (pos === 0 ? ' disabled' : '') + ' aria-label="위로 이동">▲</button>' +
-        '<button type="button" class="move-btn" data-dir="down" data-pos="' + pos + '"' + (pos === n - 1 ? ' disabled' : '') + ' aria-label="아래로 이동">▼</button>' +
-        '</div>' +
-        '<div class="row-body">' +
-        '<span class="row-num">' + (pos + 1) + '</span>' +
-        '<span class="row-text">' + renderText(runtime.items[idx]) + '</span>' + icon +
-        '</div></div>';
+      return '<div class="' + cls + '" data-slot="' + pos + '" role="button" tabindex="0">' +
+        '<span class="slot-num">' + (pos + 1) + '</span>' +
+        '<span class="slot-text">' + renderText(runtime.items[itemIdx]) + '</span>' + icon +
+        '</div>';
+    }).join('') + '</div>';
+  }
+
+  function bankHtml() {
+    var indices = bankIndices();
+    if (indices.length === 0) return '';
+    return '<p class="bank-label">&lt;보기&gt;</p><div class="bank">' + indices.map(function (itemIdx) {
+      return '<div class="bank-card" data-item="' + itemIdx + '" role="button" tabindex="0">' +
+        renderText(runtime.items[itemIdx]) +
+        '</div>';
     }).join('') + '</div>';
   }
 
   function renderPlayScreen() {
     var cfg = runtime.cfg;
+    var allFilled = runtime.slots.indexOf(null) === -1;
     var html = '';
     html += headerHtml(cfg);
     html += '<div class="card"><p class="prompt">' + renderText(cfg.prompt) + '</p>' +
-      '<p class="hint">▲▼ 버튼으로 순서를 바꿔보세요.</p>' +
-      listHtml() +
-      '<button type="button" class="btn-primary" id="checkBtn">확인</button></div>';
+      '<p class="hint">빈 칸에 순서대로 &lt;보기&gt;의 카드를 눌러 채우세요. 채운 카드를 다시 누르면 취소돼요.</p>' +
+      slotsHtml() +
+      bankHtml() +
+      '<button type="button" class="btn-primary" id="checkBtn"' + (allFilled ? '' : ' disabled') + '>확인</button></div>';
     html += creditFooterHtml(cfg);
     document.getElementById('app').innerHTML = html;
     wirePlayEvents();
@@ -394,8 +426,28 @@
     document.getElementById('retryBtn').addEventListener('click', function () { initRuntime(cfg); });
   }
 
+  // 보기 카드를 탭했을 때: 가장 앞의 빈 칸(인덱스가 가장 작은 null)에 채운다.
+  function placeItem(itemIdx) {
+    var slotPos = runtime.slots.indexOf(null);
+    if (slotPos === -1) return;
+    runtime.slots[slotPos] = itemIdx;
+    runtime.checked = false;
+    runtime.results = null;
+    renderPlayScreen();
+  }
+
+  // 채워진 칸을 탭했을 때: 그 항목을 비우고 보기로 되돌린다.
+  function removeItem(pos) {
+    if (runtime.slots[pos] === null) return;
+    runtime.slots[pos] = null;
+    runtime.checked = false;
+    runtime.results = null;
+    renderPlayScreen();
+  }
+
   function checkOrder() {
-    var results = runtime.order.map(function (idx, pos) { return idx === pos; });
+    if (runtime.slots.indexOf(null) !== -1) return;
+    var results = runtime.slots.map(function (itemIdx, pos) { return itemIdx === pos; });
     runtime.checked = true;
     runtime.results = results;
     if (results.every(function (r) { return r; })) {
@@ -405,21 +457,17 @@
     }
   }
 
-  function moveRow(pos, dir) {
-    var to = dir === 'up' ? pos - 1 : pos + 1;
-    moveOrderItem(runtime.order, pos, to);
-    runtime.checked = false;
-    runtime.results = null;
-    renderPlayScreen();
-  }
-
   function wirePlayEvents() {
-    var moveBtns = document.querySelectorAll('.move-btn');
-    moveBtns.forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var pos = Number(btn.getAttribute('data-pos'));
-        var dir = btn.getAttribute('data-dir');
-        moveRow(pos, dir);
+    var bankCards = document.querySelectorAll('.bank-card');
+    bankCards.forEach(function (card) {
+      card.addEventListener('click', function () {
+        placeItem(Number(card.getAttribute('data-item')));
+      });
+    });
+    var filledSlots = document.querySelectorAll('.slot-filled');
+    filledSlots.forEach(function (slot) {
+      slot.addEventListener('click', function () {
+        removeItem(Number(slot.getAttribute('data-slot')));
       });
     });
     var checkBtn = document.getElementById('checkBtn');
