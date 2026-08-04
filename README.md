@@ -47,6 +47,10 @@
 2. `vexco-booth` clone → `npm install`(`qrcode` 패키지 포함) → `npx qrcode --small` 동작 확인 — 전역 `~/.claude/CLAUDE.md`·superpowers 플러그인은 **설치하지 않음**(전역 규칙이 라이브 세션을 방해하지 않도록), 부스 리포의 프로젝트 `CLAUDE.md`가 규칙을 담당
 3. `.claude/settings.json` 권한 allowlist 확인 — workspace 파일 편집, 미리보기 열기(`cmd //c start`·`explorer.exe`), QR(`npx qrcode`) 등 세션에 쓰는 것만 allow 되어 있는지 점검(라이브 중 승인 프롬프트 제거). 리허설에서 승인 프롬프트가 뜨는 명령이 있으면 그 패턴을 allowlist에 추가
 4. 브라우저: 선생님 GitHub 작업은 **시크릿 창 1개**에서만. 세션 간 시크릿 창 0개 확인
+   - **GitHub CLI(`gh`)는 설치하지 않거나 로그아웃 상태로 둔다** — 진행자 계정으로 방문
+     교사의 작품이 올라가는 사고를 원천 차단. 리포 clone은 public이라 인증이 필요 없다
+     (`git clone https://github.com/hosungt/vexco-booth`). `.claude/settings.json` 도
+     `git`·`gh` 를 deny 한다.
 5. 노트북 상태: 전원 연결, 절전 해제, 알림/집중 모드, OS·브라우저 자동 업데이트 일시 중지, 화면 배율 고정
 6. **리허설**: `/booth 테스트`로 전체 흐름 실측 — 쉘 경로 최소 2회 + 자유 생성 1회 + 실제 GitHub 업로드·Pages·QR 폰 스캔까지. 10분 완주 확인, 어긋나면 SKILL.md 수정. **리허설 종료 시점에 지원 쉘 목록 확정**
 7. 폰 핫스팟 연결 테스트(네트워크 이상 시 전환용)
