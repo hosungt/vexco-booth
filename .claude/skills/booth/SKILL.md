@@ -20,7 +20,7 @@ argument-hint: "[선생님 성함]"
 - **선생님용 텍스트**: 한국어 존댓말, 전문용어 금지, 큰 제목(`##`), 화면을 같이 보며 읽는 짧은 문장.
 - **`[🎤 진행자]` 블록**: 진행자만 훑는 운영 지시(타이밍·병렬 작업·시간 조절). 한 줄로 짧게.
 - 도구 실행 로그와 코드는 주인공이 아니다. 설명은 한 줄로 줄이고 바로 다음 막으로 넘어간다.
-- 질문은 **한 번에 하나**, 가능하면 객관식으로.
+- 질문은 **한 번에 하나**, 가능하면 객관식으로. (예외: ②막 마지막 확인은 수정 여부·크레딧을 한 번에 묻는다)
 
 ## 0. 폴더명 결정 (말하지 않고 계산만)
 
@@ -119,6 +119,8 @@ Claude가 만드는 동안 진행자는 크롬에서 GitHub를 병렬로 준비�
 > 1. github.com → **Sign up** (기존 계정 있으면 Sign in) → 이메일 인증까지 완료
 > 2. **New repository** → 저장소명(영문·간단히) → **Public** → **Add a README file 체크**
 >    (main 브랜치가 만들어져 웹 업로드·Pages 설정이 바로 가능) → **Create repository**
+> 3. 리포가 만들어지면 **사용자명과 저장소명**을 Claude에게 알려주세요 —
+>    README의 체험 주소와 QR에 그대로 씁니다.
 
 ### ③-2. 쉘 선택 — 결정표
 
@@ -170,7 +172,7 @@ cp /c/dev/vexco-booth/templates/quiz.html /c/dev/vexco-booth/workspace/<이름>/
 quiz 문항 3종:
 
 - `{"type":"choice","prompt":…,"choices":[…],"answerIndex":정수,"feedbacks":[…],"explanation":…}`
-  — `feedbacks` 는 `choices` 와 **길이가 같아야** 하고, 오답 선택 시 표시된다(`""` 면 `explanation` 으로 대체).
+  — `feedbacks` 는 **필수**이며 `choices` 와 **길이가 같아야** 하고, 오답 선택 시 표시된다(`""` 면 `explanation` 으로 대체).
   `answerIndex` 는 `choices` 범위 안의 인덱스.
 - `{"type":"short","prompt":…,"answer":"…","aliases":[…],"explanation":…}` — `aliases` 는 함께 인정할 표현.
 - `{"type":"ox","prompt":…,"answer":true/false,"explanation":…}` — `answer` 는 boolean(true=○).
@@ -225,7 +227,8 @@ cmd //c start "" "C:\dev\vexco-booth\workspace\<이름>\index.html"
 
 ### ④-1. README.md 생성
 
-`workspace/<이름>/README.md` 를 만든다. **쉘·템플릿 이야기는 한 줄도 넣지 않는다** —
+`workspace/<이름>/README.md` 를 만든다. **쉘·템플릿 이야기는 한 줄도 넣지 않는다**
+(단, 리믹스용 프롬프트의 "CONFIG 부분" 문구는 스펙 원문이므로 그대로 둔다) —
 집에서 웹 채팅만으로 **처음부터** 만들 수 있는 완결 프롬프트여야 한다.
 
 ````markdown
@@ -310,7 +313,8 @@ explorer.exe "C:\dev\vexco-booth\workspace\<이름>"
 
 ### ④-4. QR 출력 → 폰 스캔
 
-예상 URL이 정해지면 바로 출력한다.
+③-1에서 받은 **사용자명·저장소명이 확정된 뒤에만** 출력한다. 아직 못 받았으면 진행자에게
+확인부터 한다 — `<사용자명>` 플레이스홀더가 남은 채로 QR을 만들지 않는다.
 
 ```bash
 npx qrcode --small "https://<사용자명>.github.io/<저장소명>/"
