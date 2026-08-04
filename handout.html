@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>기획이 90% — 바이브코딩 한 장 요약</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #ddd;
+    color: #111;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  }
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10mm;
+    padding: 10mm 0;
+  }
+  .page {
+    width: 148mm;
+    height: 210mm;
+    background: #fff;
+    padding: 9mm 10mm;
+    box-shadow: 0 0 4mm rgba(0, 0, 0, .3);
+    overflow: hidden;
+    font-size: 9pt;
+    line-height: 1.35;
+    page-break-after: always;
+  }
+  .page:last-of-type { page-break-after: auto; }
+
+  .eyebrow {
+    font-size: 7.5pt;
+    letter-spacing: .02em;
+    color: #444;
+    text-align: center;
+  }
+  h1 {
+    font-size: 17pt;
+    text-align: center;
+    margin-top: 1mm;
+  }
+  .subtitle {
+    font-size: 9pt;
+    text-align: center;
+    color: #333;
+    margin-bottom: 3mm;
+  }
+  .lead {
+    font-size: 8.5pt;
+    text-align: center;
+    color: #333;
+    margin-bottom: 3mm;
+  }
+  h2 {
+    font-size: 10.5pt;
+    border-bottom: 1.2pt solid #111;
+    padding-bottom: .8mm;
+    margin: 3mm 0 2mm;
+  }
+  .piece {
+    margin-bottom: 2mm;
+  }
+  .piece .label {
+    font-weight: bold;
+    font-size: 9pt;
+  }
+  .piece .q {
+    font-size: 8pt;
+    color: #444;
+  }
+  .example {
+    border-left: 2pt solid #111;
+    padding: 1mm 0 1mm 2.5mm;
+    margin-top: .8mm;
+    font-size: 8pt;
+    font-style: italic;
+    color: #222;
+  }
+  .qlist { margin: 0; padding: 0; }
+  .qlist .q-item {
+    margin-bottom: 1.8mm;
+  }
+  .qlist .q-item .qlabel {
+    font-weight: bold;
+    font-size: 9pt;
+  }
+  .qlist .q-item .qdesc {
+    font-size: 8pt;
+    color: #333;
+  }
+  .steps5 {
+    display: flex;
+    flex-direction: column;
+    gap: 1.4mm;
+  }
+  .steps5 .s {
+    font-size: 8.3pt;
+    display: flex;
+    align-items: baseline;
+    gap: 2mm;
+  }
+  .steps5 .s b {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .steps4 {
+    display: flex;
+    flex-direction: column;
+    gap: 2mm;
+    margin-bottom: 2.5mm;
+  }
+  .steps4 .box {
+    border: 1pt solid #111;
+    padding: 1.5mm 2.5mm;
+  }
+  .steps4 .box .t {
+    font-weight: bold;
+    font-size: 9pt;
+  }
+  .steps4 .box .d {
+    font-size: 8pt;
+    color: #222;
+    margin-top: .5mm;
+  }
+  .callout {
+    border: 1.5pt solid #111;
+    background: #f0f0f0;
+    padding: 2mm 3mm;
+    font-size: 8.5pt;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 3mm;
+  }
+  .result-line {
+    font-size: 8pt;
+    color: #333;
+    text-align: center;
+    margin-bottom: 4mm;
+  }
+  .qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5mm;
+    margin-top: auto;
+    padding-top: 3mm;
+    border-top: .8pt solid #999;
+  }
+  .qr-wrap img {
+    width: 32mm;
+    height: 32mm;
+    image-rendering: pixelated;
+  }
+  .qr-caption {
+    font-size: 8pt;
+    text-align: center;
+  }
+  .qr-url {
+    font-size: 9pt;
+    font-weight: bold;
+    text-align: center;
+  }
+  .qr-url-short {
+    font-size: 8pt;
+    color: #333;
+    text-align: center;
+  }
+  .back-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  @page { size: A5; margin: 0; }
+  @media print {
+    html, body { background: #fff; }
+    body { padding: 0; gap: 0; }
+    .page { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<section class="page">
+  <div class="eyebrow">2026 과학·수학·정보 교사 컨퍼런스 · 수학 부스</div>
+  <h1>기획이 90%</h1>
+  <div class="subtitle">바이브코딩 한 장 요약</div>
+  <div class="lead">AI에게 바로 코드를 시키지 말고, 아래 틀에 맞춰 "기획"부터 채우면 훨씬 좋은 결과물이 나옵니다.</div>
+
+  <h2>1. 기획 카드 — 네 조각을 채우세요</h2>
+
+  <div class="piece">
+    <div class="label">① 맥락과 목적</div>
+    <div class="q">나는 누구이고, 무엇을 배우게 하려는가?</div>
+    <div class="example">예시: "저는 중학교 2학년 수학 교사입니다. 학생들이 일차함수의 기울기 개념을 연습하면 좋겠어요."</div>
+  </div>
+
+  <div class="piece">
+    <div class="label">② 작동</div>
+    <div class="q">어떻게 작동하나? (조작 → 판정 → 피드백 → 종료 흐름)</div>
+    <div class="example">예시: "문제를 보여주고 학생이 답을 고르면 바로 정답 여부를 알려주고, 틀리면 왜 틀렸는지 설명해 주세요. 10문제를 다 풀면 점수를 보여주세요."</div>
+  </div>
+
+  <div class="piece">
+    <div class="label">③ 형태</div>
+    <div class="q">결과물이 어떻게 생겼나? (화면 구성, 문항 수, 색·이모지)</div>
+    <div class="example">예시: "스마트폰 화면에 문제 하나씩 보이게 해주시고, 파란색 계열로 깔끔하게 만들어 주세요. 문제는 10개로 해주세요."</div>
+  </div>
+
+  <div class="piece">
+    <div class="label">④ 협업</div>
+    <div class="q">아래 문장은 그대로 복사해서 붙여 넣으세요.</div>
+    <div class="example">"바로 구현하지 말고 나와 함께 기획하면서 만들어 줘. 내가 놓친 것과 결정할 것이 있으면 최대 5개까지 물어보고, 답을 받으면 완전한 index.html 코드를 한 번에 출력해 줘."</div>
+  </div>
+
+  <h2>2. 아이디어 점검 — 3가지 질문</h2>
+  <div class="qlist">
+    <div class="q-item">
+      <span class="qlabel">종이보다 나은가?</span>
+      <span class="qdesc"> — 즉각 피드백·랜덤화·시간 압박·시뮬레이션·개별화 중 근거가 하나는 있어야 해요. "화려해서"는 근거가 아니에요.</span>
+    </div>
+    <div class="q-item">
+      <span class="qlabel">학습이 일어나는가?</span>
+      <span class="qdesc"> — 학습자가 무엇을 하고, 어떤 피드백을 받는지 한 줄로 답해 보세요.</span>
+    </div>
+    <div class="q-item">
+      <span class="qlabel">알맹이가 있는가?</span>
+      <span class="qdesc"> — 목표 개념 또는 겨냥하는 대표 오개념을 한 줄로 답해 보세요.</span>
+    </div>
+  </div>
+
+  <h2>3. 집에서 웹 채팅으로 재현하는 5단계</h2>
+  <div class="steps5">
+    <div class="s"><b>① 생각</b>뭘 만들지 떠올리고, 위 3가지 질문으로 점검해요.</div>
+    <div class="s"><b>② 물어보며 기획</b>ChatGPT/Claude 새 채팅에 4조각을 채워 보내면 AI가 되물어요. 답해 주세요.</div>
+    <div class="s"><b>③ 만들기</b>답을 다 하면 AI가 완전한 코드를 한 번에 만들어줘요.</div>
+    <div class="s"><b>④ 고치기</b>미리보기를 보고 "이 부분 이렇게 바꿔줘"라고 말하면 돼요. 마음에 들 때까지 반복하세요.</div>
+    <div class="s"><b>⑤ 저장</b>완성된 코드를 복사해 index.html 파일로 저장하세요. (뒷면 참고)</div>
+  </div>
+</section>
+
+<section class="page">
+  <div class="back-body">
+    <div class="eyebrow">2026 과학·수학·정보 교사 컨퍼런스 · 수학 부스</div>
+    <h1 style="font-size: 15pt;">완성작을 인터넷에 올리기</h1>
+    <div class="subtitle">GitHub Pages 배포 — 4단계</div>
+    <div class="lead">저장한 index.html을 아래 순서대로 올리면, 누구나 볼 수 있는 내 웹페이지가 생겨요.</div>
+
+    <div class="steps4">
+      <div class="box">
+        <div class="t">1. 가입 또는 로그인</div>
+        <div class="d">github.com 접속 → Sign up (계정이 있으면 Sign in) → 이메일 인증까지 완료</div>
+      </div>
+      <div class="box">
+        <div class="t">2. 저장소 만들기</div>
+        <div class="d">New repository → 저장소 이름 입력(영문, 간단히) → Public 선택 → "Add a README file" 체크 → Create repository</div>
+      </div>
+      <div class="box">
+        <div class="t">3. 파일 올리기</div>
+        <div class="d">저장소 화면에서 Add file → Upload files → index.html 파일을 끌어다 놓기 → Commit changes</div>
+      </div>
+      <div class="box">
+        <div class="t">4. Pages 켜기</div>
+        <div class="d">Settings → Pages → Source를 "Deploy from a branch"로 선택 → Branch: main, 폴더: /(root) → Save</div>
+      </div>
+    </div>
+
+    <div class="callout">파일명은 반드시 index.html 이어야 해요.<br>다른 이름이면 페이지가 열리지 않아요.</div>
+
+    <div class="result-line">잠시 후(보통 1분 이내) https://내계정명.github.io/저장소이름/ 에서 완성작을 확인할 수 있어요.</div>
+
+    <div class="qr-wrap">
+      <div class="qr-caption">오늘 함께 만든 부스 안내 페이지, 폰으로 다시 보기</div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJQAAACUCAYAAAB1PADUAAAAAklEQVR4AewaftIAAATZSURBVO3BQY4cSRIEQdNA/f/Lun30UwCJ9GpyuCaCP1K15KRq0UnVopOqRSdVi06qFp1ULTqpWnRSteikatFJ1aKTqkUnVYtOqhadVC06qVr0yUtAfpOaJ4DcqHkCyDepmYD8JjVvnFQtOqladFK16JNlajYBeQLIpOYGyKTmRs0TQCY1b6jZBGTTSdWik6pFJ1WLPvkyIE+oeQLIDZA3gExqJiCTmieATGqeAPKEmm86qVp0UrXopGrRJ/8YNU8AuVFzo2YC8v/spGrRSdWik6pFn/xjgExqngDyhJongPzLTqoWnVQtOqla9MmXqflNan4TkBs1N0DeUPM3OaladFK16KRq0SfLgPxNgExqbtRMQCY1E5BJzQRkUvMGkL/ZSdWik6pFJ1WLPnlJzd8EyKRmAjKpmYBMar5JzY2a/5KTqkUnVYtOqhbhj7wAZFIzAdmk5jcBmdTcAJnUvAFkk5pvOqladFK16KRqEf7IFwGZ1ExAJjU3QCY1N0AmNX8SkDfUTEAmNU8AmdS8cVK16KRq0UnVIvyRF4BMat4A8iepuQEyqZmATGpugExqJiCTmr/ZSdWik6pFJ1WLPnlJzQTkRs2NmjeAPKHmBsgTaiYgk5on1ExAnlAzAZnUbDqpWnRSteikatEnLwGZ1DwBZFIzAZnUTEC+Sc0EZAJyo2YCMql5Q80EZAIyqfmmk6pFJ1WLTqoWffKHqblR84SaCcikZgLyhJoJyKRmAnID5Ak1E5BJzRNAJjVvnFQtOqladFK1CH9kEZBJzQRkUnMD5Ak1E5AbNROQJ9S8AeRGzRNAbtR800nVopOqRSdViz55CcikZgIyqZmA3Kh5Q80E5Ak1E5DfBGRSMwGZ1NwAmdRsOqladFK16KRq0ScvqfkmIE+ouVEzAZnUTEBugNyomYBMap4AMqmZgNyo+aaTqkUnVYtOqhZ98hKQGzUTkCfU3AB5AsgTam6ATGreAHKjZgIyqZmA3ACZ1LxxUrXopGrRSdWiT5apmYC8AWRSM6mZgExqJjUTkCeA3AC5UTMBmdT8JjWbTqoWnVQtOqla9MmXqZmATGreADKpuQEyqbkBcqPmBsgE5DepmYBMajadVC06qVp0UrXoky8DcgNkUjMBuVHzhJoJyKRmUjMBuQEyqZmA3ADZBOQGyKTmjZOqRSdVi06qFuGP/IcBmdRMQG7UTEBu1ExAJjUTkEnNBGRS8wSQTWreOKladFK16KRq0ScvAflNaiY1T6iZgDwBZFIzAbkB8gSQSc0bar7ppGrRSdWik6pFnyxTswnIDZAbNW+ouQEyqbkB8oSaJ9Q8AWRS88ZJ1aKTqkUnVYs++TIgT6j5k9RMQCY1k5oJyKRmUjMBmYBsAnKjZtNJ1aKTqkUnVYs++T8D5AbIpOYJNROQJ9TcAJnUTECeADKpeeOkatFJ1aKTqkWf/GPUfBOQSc2NmjeATGomIG+o2XRSteikatFJ1aJPvkzNN6mZgExqnlAzAbkBMql5Asgbap4A8k0nVYtOqhadVC36ZBmQ3wRkUnOjZgIyAZnUPAFkUjMBmdRMQCY1N0CeUPNNJ1WLTqoWnVQtwh+pWnJSteikatFJ1aKTqkUnVYtOqhadVC06qVp0UrXopGrRSdWik6pFJ1WLTqoWnVQt+h9Pjzw8WnBTjQAAAABJRU5ErkJggg==" alt="부스 안내 페이지 QR 코드">
+      <div class="qr-url">https://2026-bexco-math.vercel.app/</div>
+      <div class="qr-url-short">짧게 입력할 때: 2026-bexco-math.vercel.app</div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
