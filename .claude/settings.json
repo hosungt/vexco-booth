@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Read", "Glob", "Grep",
+      "Edit(workspace/**)", "Write(workspace/**)",
+      "Bash(npx qrcode:*)",
+      "Bash(explorer.exe:*)",
+      "Bash(cmd //c start:*)",
+      "Bash(cp:*)", "Bash(mkdir:*)", "Bash(ls:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)", "Bash(git commit:*)",
+      "Bash(rm -rf:*)",
+      "Edit(templates/**)", "Write(templates/**)"
+    ]
+  }
+}
