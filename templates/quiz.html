@@ -478,14 +478,16 @@
     } else {
       var extra = [];
       if (q.type === 'choice') {
-        var fb = q.feedbacks[runtime.selected];
-        if (fb) extra.push(renderText(fb));
+        // feedbacks[i]가 있으면 그것만, 빈 문자열이면 explanation으로 대체(브리프 명세).
+        var msg = q.feedbacks[runtime.selected] || q.explanation || '';
+        if (msg) extra.push(renderText(msg));
       } else if (q.type === 'short') {
         extra.push('정답: ' + renderText(q.answer));
+        if (q.explanation) extra.push(renderText(q.explanation));
       } else if (q.type === 'ox') {
         extra.push('정답: ' + (q.answer ? '○' : '×'));
+        if (q.explanation) extra.push(renderText(q.explanation));
       }
-      if (q.explanation) extra.push(renderText(q.explanation));
       body = '<p class="fb-head">아쉬워요.</p>' + extra.map(function (t) { return '<p class="fb-detail">' + t + '</p>'; }).join('');
     }
     return '<div class="' + cls + '"><span class="fb-icon">' + icon + '</span><div class="fb-body">' + body + '</div></div>';
