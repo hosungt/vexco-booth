@@ -177,6 +177,7 @@
   .feedback.correct { background: #f0fdf4; }
   .feedback.wrong { background: #fef2f2; }
   .fb-icon { font-size: 22px; font-weight: 700; line-height: 1.2; }
+  .fb-body { flex: 1; min-width: 0; }
   .feedback.correct .fb-icon { color: #16a34a; }
   .feedback.wrong .fb-icon { color: #dc2626; }
   .fb-head { margin: 0 0 4px; font-weight: 700; }
@@ -195,6 +196,7 @@
     background: #fef2f2; color: #dc2626; font-size: 13px; font-weight: 700;
     display: flex; align-items: center; justify-content: center;
   }
+  .review-body { flex: 1; min-width: 0; }
   .review-prompt { margin: 0 0 4px; font-weight: 600; word-break: keep-all; overflow-wrap: break-word; }
   .review-explain { margin: 0; font-size: 14px; color: #6b7280; word-break: keep-all; overflow-wrap: break-word; }
 
@@ -217,7 +219,7 @@
     {
       "type": "choice",
       "prompt": "y가 x에 정비례할 때, 다음 중 옳은 식은?",
-      "choices": ["y = 3x", "y = x + 3", "y = 3/x", "y = x<sup>2</sup>"],
+      "choices": ["y = 3x", "y = x + 3", "y = 3/x", "y = x<sup>2<\/sup>"],
       "answerIndex": 0,
       "feedbacks": ["", "더한 것은 정비례가 아니에요. 정비례는 y=ax 꼴!", "이건 반비례예요.", "제곱이 붙으면 정비례가 아니에요."],
       "explanation": "정비례는 y = ax (a≠0) 꼴입니다."
@@ -243,12 +245,18 @@
   /* ===== 공통 계약 (모든 쉘 동일) — Task 3~5가 이 블록을 그대로 복제한다 ===== */
 
   function getConfig() {
+    var parsed;
     try {
-      return JSON.parse(document.getElementById('config').textContent);
+      parsed = JSON.parse(document.getElementById('config').textContent);
     } catch (e) {
       showError('CONFIG 오류: JSON 문법 — ' + e.message);
       return null;
     }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      showError('CONFIG는 JSON 객체({ ... })여야 합니다. 현재 값의 타입을 확인해 주세요.');
+      return null;
+    }
+    return parsed;
   }
 
   function showError(msg) {
