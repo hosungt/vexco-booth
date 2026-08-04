@@ -351,22 +351,61 @@
         </div>
 
         <div class="card">
-          <h3>🔵 변을 늘리면 원이 돼요</h3>
+          <h3>📉 접선의 기울기가 곧 도함수예요</h3>
           <div class="demo">
-            <svg viewBox="0 0 200 200" role="img" aria-label="정다각형과 원">
-              <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
-              <polygon id="poly" points="" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
+            <svg viewBox="0 0 200 264" role="img" aria-label="함수와 도함수의 연동">
+              <defs>
+                <clipPath id="clipTop"><rect x="0" y="0" width="200" height="120"/></clipPath>
+                <clipPath id="clipBot"><rect x="0" y="144" width="200" height="120"/></clipPath>
+              </defs>
+
+              <!-- 위: 원래 함수 -->
+              <rect x="0" y="0" width="200" height="120" fill="#ffffff" rx="8"/>
+              <g stroke="#eef2ff" stroke-width="1">
+                <line x1="32" y1="0" x2="32" y2="120"/><line x1="66" y1="0" x2="66" y2="120"/>
+                <line x1="134" y1="0" x2="134" y2="120"/><line x1="168" y1="0" x2="168" y2="120"/>
+                <line x1="0" y1="24" x2="200" y2="24"/><line x1="0" y1="96" x2="200" y2="96"/>
+              </g>
+              <g stroke="#cbd5e1" stroke-width="1.2">
+                <line x1="0" y1="60" x2="200" y2="60"/><line x1="100" y1="0" x2="100" y2="120"/>
+              </g>
+              <g clip-path="url(#clipTop)">
+                <polyline id="fCurve" fill="none" stroke="#4f46e5" stroke-width="2.5" points=""/>
+                <line id="tangent" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" x1="0" y1="0" x2="0" y2="0"/>
+              </g>
+              <circle id="ptP" cx="100" cy="60" r="5" fill="#dc2626"/>
+              <text x="6" y="14" font-size="10" fill="#6b7280" font-weight="700">f(x)</text>
+
+              <!-- 위아래 연결 점선 -->
+              <line id="link" x1="100" y1="60" x2="100" y2="225"
+                    stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="3 3"/>
+
+              <!-- 아래: 도함수 -->
+              <rect x="0" y="144" width="200" height="120" fill="#ffffff" rx="8"/>
+              <g stroke="#eef2ff" stroke-width="1">
+                <line x1="32" y1="144" x2="32" y2="264"/><line x1="66" y1="144" x2="66" y2="264"/>
+                <line x1="134" y1="144" x2="134" y2="264"/><line x1="168" y1="144" x2="168" y2="264"/>
+                <line x1="0" y1="175" x2="200" y2="175"/>
+              </g>
+              <g stroke="#cbd5e1" stroke-width="1.2">
+                <line x1="0" y1="225" x2="200" y2="225"/><line x1="100" y1="144" x2="100" y2="264"/>
+              </g>
+              <g clip-path="url(#clipBot)">
+                <polyline id="dCurve" fill="none" stroke="#0d9488" stroke-width="2.5" points=""/>
+              </g>
+              <circle id="ptQ" cx="100" cy="225" r="5" fill="#0d9488"/>
+              <text x="6" y="158" font-size="10" fill="#6b7280" font-weight="700">f′(x)</text>
             </svg>
-            <div class="demo-eq" id="polyArea">넓이 ≈ 1.299 × r²</div>
+            <div class="demo-eq" id="slopeVal">x = 0 · 접선의 기울기 = −1.00</div>
             <div class="demo-row">
-              <label for="slN">변의 수</label>
-              <input type="range" id="slN" min="3" max="60" step="1" value="3">
-              <span class="demo-val" id="valN">3</span>
+              <label for="slX">점 옮기기</label>
+              <input type="range" id="slX" min="-2.4" max="2.4" step="0.05" value="0">
+              <span class="demo-val" id="valX">0.0</span>
             </div>
-            <p class="demo-note">원의 넓이는 <b>π × r²</b> = 3.141… × r²</p>
+            <p class="demo-note" id="slopeHint">f(x) = x³/3 − x · f′(x) = x² − 1</p>
           </div>
-          <p class="uses"><b>이런 데 써요</b> · 원의 넓이·둘레 · 원주율의 뜻 · 극한의 직관 · 도형의 닮음</p>
-          <p class="why">종이보다 나은 이유 — <b>"가까워진다"는 느낌</b>은 움직여야 옵니다. 정지된 그림 두 장으로는 안 돼요.</p>
+          <p class="uses"><b>이런 데 써요</b> · 미분계수의 뜻 · 도함수 · 증가·감소와 도함수의 부호 · 극대·극소</p>
+          <p class="why">종이보다 나은 이유 — 점을 옮기면 <b>접선과 도함수 값이 동시에</b> 움직여요. 판서로는 점 하나마다 그림을 새로 그려야 하죠.</p>
         </div>
 
       </div>
@@ -678,27 +717,71 @@
   });
   renderFactor();
 
-  /* ===== 데모 4: 정다각형 → 원 ===== */
-  var slN = document.getElementById('slN');
-  var valN = document.getElementById('valN');
-  var poly = document.getElementById('poly');
-  var polyArea = document.getElementById('polyArea');
-  var R = 80;
+  /* ===== 데모 4: 함수와 도함수 연동 =====
+     f(x) = x³/3 − x  ·  f′(x) = x² − 1   (극대 x=−1, 극소 x=1)
+     위·아래 평면의 x축 스케일을 같게 두어 세로 점선이 정확히 정렬되게 한다. */
+  var slX = document.getElementById('slX');
+  var valX = document.getElementById('valX');
+  var fCurve = document.getElementById('fCurve');
+  var dCurve = document.getElementById('dCurve');
+  var tangent = document.getElementById('tangent');
+  var ptP = document.getElementById('ptP');
+  var ptQ = document.getElementById('ptQ');
+  var link = document.getElementById('link');
+  var slopeVal = document.getElementById('slopeVal');
+  var slopeHint = document.getElementById('slopeHint');
 
-  function drawPoly() {
-    var n = Number(slN.value);
-    var pts = [];
-    for (var i = 0; i < n; i++) {
-      var t = (2 * Math.PI * i / n) - Math.PI / 2;
-      pts.push((100 + R * Math.cos(t)).toFixed(2) + ',' + (100 + R * Math.sin(t)).toFixed(2));
+  var XS = 34, XC = 100;              // x: 1단위 = 34px, 원점 x=100
+  var TOP_Y0 = 60, TOP_YS = 18;       // 위 평면: y=0 이 60px, 1단위 = 18px
+  var BOT_Y0 = 225, BOT_YS = 12.5;    // 아래 평면: y=0 이 225px, 1단위 = 12.5px
+  var XMIN2 = -2.6, XMAX2 = 2.6;
+
+  function f(x) { return x * x * x / 3 - x; }
+  function fp(x) { return x * x - 1; }
+  function px(x) { return XC + x * XS; }
+  function pyTop(y) { return TOP_Y0 - y * TOP_YS; }
+  function pyBot(y) { return BOT_Y0 - y * BOT_YS; }
+
+  (function drawCurves() {
+    var fPts = [], dPts = [];
+    for (var i = 0; i <= 120; i++) {
+      var x = XMIN2 + (XMAX2 - XMIN2) * i / 120;
+      fPts.push(px(x).toFixed(1) + ',' + pyTop(f(x)).toFixed(1));
+      dPts.push(px(x).toFixed(1) + ',' + pyBot(fp(x)).toFixed(1));
     }
-    poly.setAttribute('points', pts.join(' '));
-    valN.textContent = n;
-    // 정n각형(외접원 반지름 r)의 넓이 = (n/2)·r²·sin(2π/n)
-    polyArea.textContent = '넓이 ≈ ' + ((n / 2) * Math.sin(2 * Math.PI / n)).toFixed(3) + ' × r²';
+    fCurve.setAttribute('points', fPts.join(' '));
+    dCurve.setAttribute('points', dPts.join(' '));
+  })();
+
+  function updatePoint() {
+    var x = Number(slX.value);
+    var y = f(x), m = fp(x);
+    var cx = px(x), cyTop = pyTop(y), cyBot = pyBot(m);
+
+    ptP.setAttribute('cx', cx); ptP.setAttribute('cy', cyTop);
+    ptQ.setAttribute('cx', cx); ptQ.setAttribute('cy', cyBot);
+    link.setAttribute('x1', cx); link.setAttribute('y1', cyTop);
+    link.setAttribute('x2', cx); link.setAttribute('y2', cyBot);
+
+    // 접선: 점 (x, y)를 지나고 기울기 m — 좌우 1.1단위만 그린다
+    var d = 1.1;
+    tangent.setAttribute('x1', px(x - d)); tangent.setAttribute('y1', pyTop(y - d * m));
+    tangent.setAttribute('x2', px(x + d)); tangent.setAttribute('y2', pyTop(y + d * m));
+
+    valX.textContent = x.toFixed(1);
+    slopeVal.textContent = 'x = ' + x.toFixed(1) + ' · 접선의 기울기 = '
+      + (m < 0 ? '−' + Math.abs(m).toFixed(2) : m.toFixed(2));
+
+    if (Math.abs(m) < 0.06) {
+      slopeHint.textContent = '기울기가 0이에요 — 아래 점이 정확히 가로축에 닿았죠?';
+    } else if (m > 0) {
+      slopeHint.textContent = '기울기가 양수 — 함수가 올라가고, 아래 점은 가로축 위에 있어요.';
+    } else {
+      slopeHint.textContent = '기울기가 음수 — 함수가 내려가고, 아래 점은 가로축 아래에 있어요.';
+    }
   }
-  slN.addEventListener('input', drawPoly);
-  drawPoly();
+  slX.addEventListener('input', updatePoint);
+  updatePoint();
 })();
 </script>
 </body>
