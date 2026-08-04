@@ -3,6 +3,60 @@
 2026 과학·수학·정보 교사 컨퍼런스 · 서울시교육청 수학 부스 — 1:1 바이브코딩 체험(10분) 진행 가이드입니다.
 **이 문서는 진행자 전용**입니다(방문 선생님께 보여드리는 문서가 아닙니다).
 
+> **현장에서 컴퓨터를 처음 세팅하신다면 → [0. 현장 세팅](#0-현장-세팅-맨바닥에서-시작할-때) 부터 보세요.**
+> (이 페이지는 폰에서 github.com/hosungt/vexco-booth 로 열면 그대로 보입니다.)
+
+---
+
+## 0. 현장 세팅 (맨바닥에서 시작할 때)
+
+**소요 시간: 15~25분** (인터넷 속도에 따라). Windows 기준.
+
+### 전날 USB에 담아 갈 것
+
+| 담을 것 | 크기 | 왜 |
+|---|---|---|
+| `vexco-booth` 폴더 **통째로**(`node_modules` 포함) | 3.5MB | 복사만 하면 `npm install` 불필요 |
+| Node.js LTS 설치 파일 (`.msi`, nodejs.org에서 다운로드) | 30MB 내외 | 현장 인터넷이 느릴 때 대비 |
+| VS Code 설치 파일 (선택) | 100MB 내외 | 터미널만 쓸 거면 없어도 됨 |
+
+> 인터넷이 잘 되면 USB 없이도 됩니다 — GitHub에서 **Code → Download ZIP** 으로 받는 쪽이
+> 항상 최신입니다. USB는 **인터넷이 안 될 때의 보험**으로 챙기세요.
+
+### 현장 순서
+
+1. **Node.js 설치** — USB의 `.msi` 실행(또는 nodejs.org LTS). 설치 후 터미널에서 `node --version` 확인.
+   (개발 기준 버전: Node 24 / npm 11. LTS면 무엇이든 동작합니다.)
+2. **Claude Code 설치 + 로그인** — 둘 중 하나
+   - **VS Code 방식**: VS Code 설치 → 확장에서 `Claude Code` 설치 → 로그인(진행자 Max 계정)
+   - **터미널 방식**(더 빠름): `npm i -g @anthropic-ai/claude-code` → `claude` 실행 → 로그인
+3. **저장소 배치** — USB의 `vexco-booth` 폴더를 **`C:\dev\vexco-booth`** 로 복사.
+   **경로를 반드시 이대로** 두세요(대본에 절대경로가 들어 있습니다).
+   인터넷이 되면 대신: `git clone https://github.com/hosungt/vexco-booth C:/dev/vexco-booth` → `npm --prefix C:/dev/vexco-booth install`
+4. **동작 확인 3가지**
+   ```bash
+   npx --prefix C:/dev/vexco-booth qrcode --small "test"    # QR이 그려지면 OK
+   cmd //c start "" "C:\dev\vexco-booth\gallery.html"        # 슬라이드가 열리면 OK
+   ```
+   그리고 `C:\dev\vexco-booth` 에서 Claude Code를 열어 **`/booth 테스트`** 1회.
+5. **전역 설정 확인** — 남의 컴퓨터라면 대개 없지만, 있으면 치웁니다.
+   ```bash
+   ls ~/.claude/CLAUDE.md                       # 있으면 → mv ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak
+   ls ~/.claude/plugins/cache                   # superpowers 등이 있으면 /plugin 으로 비활성화
+   ```
+
+### 세팅이 끝내 안 될 때 (축소 운영)
+
+Claude Code를 못 띄우면 **기획 체험만으로도 세션은 성립합니다.**
+
+1. `gallery.html` 을 브라우저로 열어 슬라이드 1~2를 함께 봅니다.
+2. 기획 카드 네 조각을 **말과 종이로** 채웁니다(유인물 앞면과 같은 틀).
+3. `templates/` 의 완성작을 열어 "이런 게 만들어집니다"를 보여드립니다.
+4. 그 파일을 그대로 선생님 GitHub에 업로드해 **배포까지** 경험시켜 드립니다.
+5. 유인물을 드리고, 집에서 웹 채팅으로 재현하시도록 안내합니다.
+
+핵심 메시지("기획이 90%")와 산출물(URL·프롬프트)은 이 경로로도 전달됩니다.
+
 ---
 
 ## 1. 세션 시작법
