@@ -459,26 +459,33 @@
 
   // 결과 화면 진입 시 1회 호출. 이번 점수를 저장하고, 이전 기록이 있었을 때만
   // "내 기록" 섹션 HTML을 반환한다(첫 판이거나 localStorage 사용 불가 시 빈 문자열).
+  // 저장 형식: { n: 지금까지 푼 총 횟수, items: [최근 20회] }
+  // (리허설 중 쌓였을 수 있는 예전 배열 형식도 그대로 읽는다)
   function buildRecordsSectionHtml(cfg, score, total) {
     var key = recordsStorageKey(cfg);
-    var prior;
+    var prior, priorCount;
     try {
       var raw = localStorage.getItem(key);
-      prior = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(prior)) prior = [];
+      var parsed = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(parsed)) {
+        prior = parsed; priorCount = parsed.length;
+      } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.items)) {
+        prior = parsed.items;
+        priorCount = typeof parsed.n === 'number' ? parsed.n : parsed.items.length;
+      } else {
+        prior = []; priorCount = 0;
+      }
     } catch (e) {
       return '';
     }
     var entry = { score: score, total: total, at: Date.now() };
-    if (prior.length === 0) {
-      try { localStorage.setItem(key, JSON.stringify([entry])); } catch (e) { /* 조용히 무시 */ }
-      return '';
-    }
-    var maxPriorScore = prior.reduce(function (m, r) { return Math.max(m, r.score); }, -Infinity);
-    var isNewBest = entry.score > maxPriorScore;
+    var count = priorCount + 1;
     var updated = prior.concat([entry]);
     if (updated.length > 20) updated = updated.slice(updated.length - 20);
-    try { localStorage.setItem(key, JSON.stringify(updated)); } catch (e) { /* 조용히 무시, 화면 표시는 계속 */ }
+    try { localStorage.setItem(key, JSON.stringify({ n: count, items: updated })); } catch (e) { /* 조용히 무시, 화면 표시는 계속 */ }
+    if (priorCount === 0) return '';   // 첫 판에는 표시하지 않는다
+    var maxPriorScore = prior.reduce(function (m, r) { return Math.max(m, r.score); }, -Infinity);
+    var isNewBest = entry.score > maxPriorScore;
     var bestEntry = updated.reduce(function (b, r) { return r.score > b.score ? r : b; }, updated[0]);
     var recent = updated.slice(-5).reverse();
     var html = '<div class="card records-section">';
@@ -486,7 +493,8 @@
     if (isNewBest) {
       html += '<p class="records-newbest">🎉 최고 기록 경신!</p>';
     }
-    html += '<p class="records-best">최고 점수 <strong>' + bestEntry.score + ' / ' + bestEntry.total + '</strong></p>';
+    html += '<p class="records-best">지금까지 <strong>' + count + '번</strong> 풀었어요 · 최고 점수 <strong>'
+      + bestEntry.score + ' / ' + bestEntry.total + '</strong></p>';
     html += '<ul class="records-list">' + recent.map(function (r) {
       return '<li class="records-item"><span class="records-item-score">' + r.score + ' / ' + r.total + '</span>' +
         '<span class="records-item-time">' + formatRecordTime(r.at) + '</span></li>';

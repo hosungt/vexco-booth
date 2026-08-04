@@ -488,7 +488,7 @@
         at: Date.now()
       });
       if (recordResult && recordResult.prevHadRecords) {
-        html += recordsSectionHtml(recordResult.list);
+        html += recordsSectionHtml(recordResult.list, recordResult.count);
       }
     }
     html += '<button type="button" class="btn-primary btn-retry" id="retryBtn">다시 도전</button>';
@@ -507,25 +507,36 @@
     return 'booth:' + cfg.template + ':' + cfg.title;
   }
 
-  // 이번 판 기록을 저장하고 { prevHadRecords, list } 를 반환한다.
+  // 이번 판 기록을 저장하고 { prevHadRecords, list, count } 를 반환한다.
+  // 저장 형식: { n: 지금까지 도전한 총 횟수, items: [최근 20회] }
+  // (리허설 중 쌓였을 수 있는 예전 배열 형식도 그대로 읽는다)
   // localStorage 접근/파싱이 실패하면(사생활 보호 모드, file:// 등) null을 반환하며,
   // 이 경우 호출부는 "내 기록" 섹션을 표시하지 않을 뿐 게임 자체는 정상 동작한다.
   function saveRecord(cfg, entry) {
     try {
       var key = recordsKey(cfg);
       var raw = localStorage.getItem(key);
-      var prevList = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(prevList)) prevList = [];
+      var parsed = raw ? JSON.parse(raw) : null;
+      var prevList, prevCount;
+      if (Array.isArray(parsed)) {
+        prevList = parsed; prevCount = parsed.length;
+      } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.items)) {
+        prevList = parsed.items;
+        prevCount = typeof parsed.n === 'number' ? parsed.n : parsed.items.length;
+      } else {
+        prevList = []; prevCount = 0;
+      }
       var newList = [entry].concat(prevList);
       if (newList.length > 20) newList.length = 20;
-      localStorage.setItem(key, JSON.stringify(newList));
-      return { prevHadRecords: prevList.length > 0, list: newList };
+      var count = prevCount + 1;
+      localStorage.setItem(key, JSON.stringify({ n: count, items: newList }));
+      return { prevHadRecords: prevCount > 0, list: newList, count: count };
     } catch (e) {
       return null;
     }
   }
 
-  function recordsSectionHtml(list) {
+  function recordsSectionHtml(list, count) {
     var best = list[0].score;
     var bestPrior = list[1].score;
     for (var i = 1; i < list.length; i++) {
@@ -544,7 +555,7 @@
     var badgeHtml = isNewBest ? '<p class="records-new-best">🏆 최고 기록 경신!</p>' : '';
     return '<div class="card records-card">' +
       '<h2 class="records-title">내 기록</h2>' +
-      '<div class="records-best">최고 점수 <span class="records-best-val">' + best + '점</span></div>' +
+      '<div class="records-best">지금까지 <span class="records-best-val">' + count + '번</span> 도전 · 최고 점수 <span class="records-best-val">' + best + '점</span></div>' +
       badgeHtml +
       '<ul class="records-list">' + itemsHtml + '</ul>' +
       '<p class="records-note">기록은 이 기기에만 저장돼요. 다른 사람과 섞이지 않아요.</p>' +
