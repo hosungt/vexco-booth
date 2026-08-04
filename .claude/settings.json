@@ -4,6 +4,7 @@
       "Read", "Glob", "Grep",
       "Edit(workspace/**)", "Write(workspace/**)",
       "Bash(npx qrcode:*)",
+      "Bash(node -e:*)",
       "Bash(explorer.exe:*)",
       "Bash(cmd //c start:*)",
       "Bash(cp:*)", "Bash(mkdir:*)", "Bash(ls:*)"

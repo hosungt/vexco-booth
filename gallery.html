@@ -4,16 +4,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  gallery.html — 아이디어 촉매 페이지 (①막에서 선생님과 함께 본다)
+  gallery.html — 세션 시작 슬라이드 (①막에서 선생님과 함께 본다)
 
-  목적: "만들고 싶은 것 있으세요?" 에 막막해하실 때, 만들 수 있는 것의 종류를
-  움직이는 예시로 보여드려 아이디어를 끌어낸다.
+  5장 구성:
+    1. 이런 것들을 만들 수 있어요 (탭 2개: 채점형 / 관찰형)
+    2. 세 가지만 확인해요 (아이디어 필터)
+    3. 어떻게 만들어지나요 (세션 진행 구조 — "코딩은 한 칸")
+    4. 무엇을 가져가시나요 (URL·프롬프트·집에서 더해볼 것·메일)
+    5. 왜 VS Code로 하나요 → "준비되셨나요?"
 
-  - 섹션 A(쉘 4종)는 templates/ 의 실제 완성작으로 연결된다(상대 경로, 로컬에서 열림).
-  - 섹션 B(자유 생성)의 데모 4종은 이 파일 안에서 실제로 작동한다.
+  - 탭 A(채점형)의 카드는 templates/ 의 실제 완성작으로 연결된다(상대 경로, 로컬에서 열림).
+  - 탭 B(관찰형)의 데모 4종은 이 파일 안에서 실제로 작동한다.
   - 외부 리소스·네트워크 요청 0. 인터넷 없이도 열린다.
+  - 조작: 하단 버튼 · 좌우 방향키 · 점 인디케이터 클릭.
 -->
-<title>이런 것들을 만들 수 있어요 — 부스 아이디어 갤러리</title>
+<title>이런 것들을 만들 수 있어요 — 부스 바이브코딩 체험</title>
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -23,49 +28,63 @@
     color: #1f2937;
     line-height: 1.5;
     -webkit-text-size-adjust: 100%;
+    padding-bottom: 84px;           /* 하단 고정 내비 높이만큼 */
   }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 28px 16px 56px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 22px 16px 32px; }
 
-  .hero { text-align: center; margin-bottom: 32px; }
-  .hero .eyebrow { font-size: 13px; color: #6b7280; margin-bottom: 6px; }
-  .hero h1 { font-size: 28px; font-weight: 800; margin: 0 0 8px; word-break: keep-all; }
-  .hero p { font-size: 15px; color: #4b5563; margin: 0; word-break: keep-all; }
-  .hero .accent { color: #4f46e5; }
+  /* ===== 슬라이드 ===== */
+  .slide { display: none; }
+  .slide.on { display: block; animation: fade .22s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-  .section-head { margin: 36px 0 14px; }
-  .section-head h2 { font-size: 20px; font-weight: 700; margin: 0 0 4px; word-break: keep-all; }
-  .section-head p { font-size: 14px; color: #6b7280; margin: 0; word-break: keep-all; }
+  .eyebrow { font-size: 13px; color: #6b7280; text-align: center; margin-bottom: 6px; }
+  .slide h1 {
+    font-size: 30px; font-weight: 800; margin: 0 0 8px;
+    text-align: center; word-break: keep-all; letter-spacing: -0.5px;
+  }
+  .slide .lead {
+    font-size: 15.5px; color: #4b5563; text-align: center;
+    margin: 0 auto 22px; max-width: 680px; word-break: keep-all;
+  }
+  .accent { color: #4f46e5; }
 
-  /* min(400px, 100%) — 화면이 400px보다 좁으면 1열로 접히게 해 가로 오버플로를 막는다 */
+  /* ===== 탭 ===== */
+  .tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 18px; flex-wrap: wrap; }
+  .tab {
+    min-height: 48px; padding: 0 20px; border-radius: 999px; cursor: pointer;
+    border: 2px solid #e5e7eb; background: #ffffff; color: #4b5563;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+  }
+  .tab:hover { border-color: #c7d2fe; }
+  .tab.on { background: #4f46e5; border-color: #4f46e5; color: #ffffff; }
+  .panel { display: none; }
+  .panel.on { display: block; }
+
+  /* ===== 카드 그리드 ===== */
+  /* min(400px, 100%) — 화면이 400px보다 좁으면 1열로 접혀 가로 오버플로를 막는다 */
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr)); gap: 14px; }
-
   .card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 18px;
+    background: #ffffff; border-radius: 16px; padding: 18px;
     box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
     display: flex; flex-direction: column; gap: 10px;
   }
-  .card h3 { font-size: 16px; font-weight: 700; margin: 0; word-break: keep-all; }
+  .card h3 { font-size: 16.5px; font-weight: 700; margin: 0; word-break: keep-all; }
   .card .desc { font-size: 14px; color: #4b5563; margin: 0; word-break: keep-all; }
   .card .uses { font-size: 13px; color: #6b7280; margin: 0; word-break: keep-all; }
   .card .uses b { color: #374151; font-weight: 600; }
-
   .why {
     font-size: 12.5px; color: #4338ca; background: #eef2ff;
     border-radius: 10px; padding: 8px 10px; margin: 0; word-break: keep-all;
   }
-
   .open-btn {
     display: inline-block; text-align: center;
     min-height: 44px; line-height: 44px; padding: 0 16px;
     background: #4f46e5; color: #ffffff; text-decoration: none;
-    border-radius: 10px; font-size: 14px; font-weight: 700;
-    margin-top: auto;
+    border-radius: 10px; font-size: 14px; font-weight: 700; margin-top: auto;
   }
   .open-btn:hover { background: #4338ca; }
 
-  /* ===== 미니 데모 공통 ===== */
+  /* ===== 미니 데모 ===== */
   .demo {
     background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
     padding: 12px; display: flex; flex-direction: column; gap: 8px; align-items: center;
@@ -75,10 +94,7 @@
   .demo-row label { color: #6b7280; white-space: nowrap; }
   .demo-row input[type=range] { flex: 1; min-width: 0; accent-color: #4f46e5; height: 24px; }
   .demo-val { font-variant-numeric: tabular-nums; font-weight: 700; color: #4f46e5; min-width: 34px; text-align: right; }
-  .demo-eq {
-    font-size: 15px; font-weight: 700; color: #1f2937;
-    font-variant-numeric: tabular-nums; text-align: center;
-  }
+  .demo-eq { font-size: 15px; font-weight: 700; color: #1f2937; font-variant-numeric: tabular-nums; text-align: center; }
   .demo-btn {
     min-height: 40px; padding: 0 14px; border-radius: 8px; cursor: pointer;
     border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;
@@ -88,13 +104,11 @@
   .demo-btns { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
   .demo-note { font-size: 12px; color: #6b7280; text-align: center; margin: 0; word-break: keep-all; }
 
-  /* 주사위 막대 */
   .bars { display: flex; align-items: flex-end; gap: 6px; height: 96px; width: 100%; }
   .bar-col { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; height: 100%; }
   .bar { width: 100%; background: #4f46e5; border-radius: 4px 4px 0 0; min-height: 2px; transition: height .18s ease; }
   .bar-label { font-size: 11px; color: #6b7280; }
 
-  /* 단계 펼치기 */
   .steps { width: 100%; display: flex; flex-direction: column; gap: 6px; }
   .step {
     font-size: 15px; font-weight: 700; text-align: center;
@@ -103,208 +117,490 @@
   }
   .step.final { background: #eef2ff; border-color: #c7d2fe; color: #4338ca; }
 
-  /* 3질문 */
-  .filter { background: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-  .filter ol { margin: 0; padding-left: 20px; }
-  .filter li { font-size: 14.5px; margin-bottom: 8px; word-break: keep-all; }
-  .filter li:last-child { margin-bottom: 0; }
-  .filter b { color: #4338ca; }
+  /* ===== 슬라이드 2 — 3질문 ===== */
+  .qbox { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+  .q {
+    background: #ffffff; border-radius: 16px; padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); display: flex; gap: 14px; align-items: flex-start;
+  }
+  .q-num {
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: #eef2ff; color: #4338ca; font-weight: 800; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .q-body { flex: 1; min-width: 0; }
+  .q-body h3 { margin: 0 0 4px; font-size: 17px; font-weight: 700; word-break: keep-all; }
+  .q-body p { margin: 0; font-size: 14px; color: #4b5563; word-break: keep-all; }
 
-  .foot { text-align: center; font-size: 12.5px; color: #6b7280; margin-top: 32px; word-break: keep-all; }
+  /* ===== 슬라이드 3 — 진행 구조 ===== */
+  .flow { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+  .fstep {
+    background: #ffffff; border-radius: 14px; padding: 14px 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.07);
+    display: flex; gap: 14px; align-items: flex-start;
+    border-left: 5px solid #c7d2fe;
+  }
+  .fstep.code { border-left-color: #4f46e5; background: #f5f3ff; }
+  .fstep .ftime {
+    flex: none; font-size: 12px; font-weight: 800; color: #4338ca;
+    background: #eef2ff; border-radius: 999px; padding: 4px 10px; margin-top: 2px;
+    white-space: nowrap;
+  }
+  .fbody { flex: 1; min-width: 0; }
+  .fbody h3 { margin: 0 0 3px; font-size: 16px; font-weight: 700; word-break: keep-all; }
+  .fbody p { margin: 0; font-size: 13.5px; color: #4b5563; word-break: keep-all; }
+  .fbody .who { color: #6b7280; font-size: 12.5px; }
+  .flow-note {
+    max-width: 760px; margin: 16px auto 0; text-align: center;
+    background: #eef2ff; border-radius: 12px; padding: 14px 16px;
+    font-size: 15px; color: #3730a3; word-break: keep-all;
+  }
+
+  /* ===== 슬라이드 4 — 결과물 ===== */
+  .take { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 14px; }
+  .tcard {
+    background: #ffffff; border-radius: 16px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08); display: flex; flex-direction: column; gap: 8px;
+  }
+  .tcard h3 { margin: 0; font-size: 16.5px; font-weight: 700; word-break: keep-all; }
+  .tcard p { margin: 0; font-size: 14px; color: #4b5563; word-break: keep-all; }
+  .tcard ul { margin: 2px 0 0; padding-left: 18px; }
+  .tcard li { font-size: 13.5px; color: #4b5563; margin-bottom: 4px; word-break: keep-all; }
+  .sample {
+    background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px;
+    padding: 10px 12px; font-size: 12.5px; color: #374151;
+    word-break: break-all; line-height: 1.6;
+  }
+  .sample b { color: #4338ca; }
+
+  /* ===== 슬라이드 5 — 왜 VS Code ===== */
+  .why2 { max-width: 780px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 14px; }
+  .wcard { background: #ffffff; border-radius: 16px; padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .wcard h3 { margin: 0 0 8px; font-size: 16px; font-weight: 700; }
+  .wcard p { margin: 0 0 6px; font-size: 14px; color: #4b5563; word-break: keep-all; }
+  .wcard p:last-child { margin-bottom: 0; }
+  .ready {
+    max-width: 780px; margin: 22px auto 0; text-align: center;
+    background: #4f46e5; color: #ffffff; border-radius: 18px; padding: 26px 20px;
+  }
+  .ready h2 { margin: 0 0 6px; font-size: 26px; font-weight: 800; letter-spacing: -0.5px; }
+  .ready p { margin: 0; font-size: 15px; opacity: .92; word-break: keep-all; }
+
+  /* ===== 하단 내비 ===== */
+  .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+    background: rgba(255,255,255,.94); border-top: 1px solid #e5e7eb;
+    backdrop-filter: blur(6px);
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    padding: 12px 16px;
+  }
+  .nav-btn {
+    min-height: 48px; min-width: 108px; padding: 0 18px; border-radius: 12px; cursor: pointer;
+    border: 2px solid #e5e7eb; background: #ffffff; color: #1f2937;
+    font-family: inherit; font-size: 15px; font-weight: 700;
+  }
+  .nav-btn:hover:not(:disabled) { border-color: #4f46e5; }
+  .nav-btn:disabled { opacity: .38; cursor: default; }
+  .nav-btn.primary { background: #4f46e5; border-color: #4f46e5; color: #ffffff; }
+  .nav-btn.primary:hover { background: #4338ca; }
+  .dots { display: flex; gap: 8px; }
+  .dot {
+    width: 11px; height: 11px; border-radius: 50%; border: none; padding: 0;
+    background: #d1d5db; cursor: pointer;
+  }
+  .dot.on { background: #4f46e5; transform: scale(1.25); }
+
+  .foot { text-align: center; font-size: 12.5px; color: #6b7280; margin-top: 26px; word-break: keep-all; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header class="hero">
+  <!-- ============ 슬라이드 1 — 만들 수 있는 것 ============ -->
+  <section class="slide on" data-slide="0">
     <div class="eyebrow">2026 과학·수학·정보 교사 컨퍼런스 · 서울시교육청 수학 부스</div>
     <h1>이런 것들을 <span class="accent">만들 수 있어요</span></h1>
-    <p>아래 예시를 눌러보시고, "우리 반 애들한테 이런 게 있으면 좋겠다" 싶은 걸 말씀해 주세요.<br>
-       똑같이 만들 필요는 없어요. <b>단원만 바꿔도 됩니다.</b></p>
-  </header>
+    <p class="lead">예시를 직접 눌러보시고, "우리 반 애들한테 이런 게 있으면 좋겠다" 싶은 걸 말씀해 주세요.
+      똑같이 만들 필요는 없어요 — <b>단원만 바꿔도 됩니다.</b></p>
 
-  <!-- ===================== 섹션 A — 쉘 4종 ===================== -->
-  <div class="section-head">
-    <h2>① 문제를 내고, 바로 채점해 주는 것</h2>
-    <p>가장 빠르게 만들어집니다. 카드를 눌러 실제로 풀어보세요.</p>
-  </div>
-
-  <div class="grid">
-    <div class="card">
-      <h3>📝 형성평가</h3>
-      <p class="desc"><b>객관식 · 단답형 · OX</b>를 섞어 낼 수 있어요. 답을 고르면 바로 채점하고,
-        <b>틀린 선택지마다 다른 이유</b>를 보여줍니다.</p>
-      <p class="uses"><b>이런 데 써요</b> · 정비례 판별 · 비와 비율 · 대푯값 · 지수·로그 계산</p>
-      <p class="why">종이보다 나은 이유 — 왜 틀렸는지 그 자리에서 알려주고, 몇 번이든 다시 풀 수 있어요.</p>
-      <a class="open-btn" href="templates/quiz.html" target="_blank" rel="noopener">예시 열어보기</a>
+    <div class="tabs">
+      <button type="button" class="tab on" data-tab="a">① 문제 내고 바로 채점하기</button>
+      <button type="button" class="tab" data-tab="b">② 움직이고 반복해서 관찰하기</button>
     </div>
 
-    <div class="card">
-      <h3>⚡ 빠르게 분류하기</h3>
-      <p class="desc">카드가 하나씩 나오고 <b>왼쪽/오른쪽 두 범주</b>로 빠르게 분류해요. 제한 시간·점수·연속 보너스가 붙어요.</p>
-      <p class="uses"><b>이런 데 써요</b> · 유리수/무리수 · 소수/합성수 · 함수다/아니다 · 수렴/발산</p>
-      <p class="why">종이보다 나은 이유 — 시간 압박이 있어야 <b>직관이 자동화</b>돼요. 게임처럼 반복하게 됩니다.</p>
-      <a class="open-btn" href="templates/speed-game.html" target="_blank" rel="noopener">예시 열어보기</a>
-    </div>
-
-    <div class="card">
-      <h3>🃏 짝 맞추기</h3>
-      <p class="desc">카드가 <b>모두 펼쳐진 상태</b>에서 짝이 되는 둘을 골라요. 식과 인수분해 결과, 용어와 뜻처럼 일대일로 대응되면 됩니다.</p>
-      <p class="uses"><b>이런 데 써요</b> · 인수분해 · 곱셈구구 · 도형↔넓이 공식 · 삼각비 값↔각도</p>
-      <p class="why">종이보다 나은 이유 — 즉각 판정과 무한 반복. <b>기억력이 아니라 판단력</b>을 씁니다(카드는 뒤집히지 않아요).</p>
-      <a class="open-btn" href="templates/pair-game.html" target="_blank" rel="noopener">예시 열어보기</a>
-    </div>
-
-    <div class="card">
-      <h3>🔢 순서대로 배열하기</h3>
-      <p class="desc"><b>&lt;보기&gt;의 카드를 빈 칸에 눌러 채워요.</b> 잘못 놓으면 다시 눌러 빼면 돼요. 확인하면 자리마다 맞았는지 표시됩니다.</p>
-      <p class="uses"><b>이런 데 써요</b> · 부등호로 수 크기 비교 · <b>그래프의 폭·기울기 비교</b> · 계산 순서 · 풀이 단계</p>
-      <p class="why">종이보다 나은 이유 — 지우개 없이 <b>몇 번이든 다시 놓아보며</b> 시행착오할 수 있어요.</p>
-      <a class="open-btn" href="templates/order-game.html" target="_blank" rel="noopener">예시 열어보기</a>
-    </div>
-
-    <div class="card">
-      <h3>📈 식 ↔ 그래프 연결하기</h3>
-      <p class="desc"><b>식을 보고 그래프를 고르고</b>, 거꾸로 <b>그래프를 보고 식을 골라요.</b>
-        그래프는 자동으로 그려지니 식만 정해 주시면 됩니다.</p>
-      <p class="uses"><b>이런 데 써요</b> · 일차함수 기울기·절편 · 이차함수 꼭짓점·폭 · 반비례 · 그래프 해석</p>
-      <p class="why">종이보다 나은 이유 — 비슷하지만 <b>미묘하게 다른 그래프 4개</b>를 나란히 놓고 고르게 할 수 있어요. 판서로는 한 번에 한 장뿐이죠.</p>
-      <a class="open-btn" href="templates/graph-match.html" target="_blank" rel="noopener">예시 열어보기</a>
-    </div>
-  </div>
-
-  <!-- ===================== 섹션 B — 자유 생성 ===================== -->
-  <div class="section-head">
-    <h2>② 움직이고, 반복해서 관찰하는 것</h2>
-    <p>종이로는 못 하는 것들이에요. 아래는 <b>지금 바로 만져보실 수 있는 진짜 예시</b>입니다.</p>
-  </div>
-
-  <div class="grid">
-
-    <!-- 데모 1: 슬라이더 일차함수 -->
-    <div class="card">
-      <h3>🎚️ 값을 바꾸면 그래프가 변해요</h3>
-      <div class="demo">
-        <svg viewBox="0 0 200 200" role="img" aria-label="일차함수 그래프">
-          <defs>
-            <clipPath id="plotClip"><rect x="0" y="0" width="200" height="200"/></clipPath>
-          </defs>
-          <g stroke="#e5e7eb" stroke-width="1">
-            <line x1="20" y1="0" x2="20" y2="200"/><line x1="60" y1="0" x2="60" y2="200"/>
-            <line x1="140" y1="0" x2="140" y2="200"/><line x1="180" y1="0" x2="180" y2="200"/>
-            <line x1="0" y1="20" x2="200" y2="20"/><line x1="0" y1="60" x2="200" y2="60"/>
-            <line x1="0" y1="140" x2="200" y2="140"/><line x1="0" y1="180" x2="200" y2="180"/>
-          </g>
-          <g stroke="#9ca3af" stroke-width="1.5">
-            <line x1="0" y1="100" x2="200" y2="100"/><line x1="100" y1="0" x2="100" y2="200"/>
-          </g>
-          <g clip-path="url(#plotClip)">
-            <line id="fnLine" x1="0" y1="100" x2="200" y2="100" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
-          </g>
-        </svg>
-        <div class="demo-eq" id="fnEq">y = 1x + 0</div>
-        <div class="demo-row">
-          <label for="slA">기울기 a</label>
-          <input type="range" id="slA" min="-3" max="3" step="0.5" value="1">
-          <span class="demo-val" id="valA">1</span>
+    <!-- 탭 A — 채점형(쉘 5종) -->
+    <div class="panel on" id="panel-a">
+      <div class="grid">
+        <div class="card">
+          <h3>📝 형성평가</h3>
+          <p class="desc"><b>객관식 · 단답형 · OX</b>를 섞어 낼 수 있어요. 답을 고르면 바로 채점하고,
+            <b>틀린 선택지마다 다른 이유</b>를 보여줍니다.</p>
+          <p class="uses"><b>이런 데 써요</b> · 정비례 판별 · 비와 비율 · 대푯값 · 지수·로그 계산</p>
+          <p class="why">종이보다 나은 이유 — 왜 틀렸는지 그 자리에서 알려주고, 몇 번이든 다시 풀 수 있어요.</p>
+          <a class="open-btn" href="templates/quiz.html" target="_blank" rel="noopener">예시 열어보기</a>
         </div>
-        <div class="demo-row">
-          <label for="slB">y절편 b</label>
-          <input type="range" id="slB" min="-4" max="4" step="1" value="0">
-          <span class="demo-val" id="valB">0</span>
+
+        <div class="card">
+          <h3>⚡ 빠르게 분류하기</h3>
+          <p class="desc">카드가 하나씩 나오고 <b>왼쪽/오른쪽 두 범주</b>로 빠르게 분류해요. 제한 시간·점수·연속 보너스가 붙어요.</p>
+          <p class="uses"><b>이런 데 써요</b> · 유리수/무리수 · 소수/합성수 · 함수다/아니다 · 수렴/발산</p>
+          <p class="why">종이보다 나은 이유 — 시간 압박이 있어야 <b>직관이 자동화</b>돼요. 게임처럼 반복하게 됩니다.</p>
+          <a class="open-btn" href="templates/speed-game.html" target="_blank" rel="noopener">예시 열어보기</a>
+        </div>
+
+        <div class="card">
+          <h3>🃏 짝 맞추기</h3>
+          <p class="desc">카드가 <b>모두 펼쳐진 상태</b>에서 짝이 되는 둘을 골라요. 식과 인수분해 결과, 용어와 뜻처럼 일대일로 대응되면 됩니다.</p>
+          <p class="uses"><b>이런 데 써요</b> · 인수분해 · 곱셈구구 · 도형↔넓이 공식 · 삼각비 값↔각도</p>
+          <p class="why">종이보다 나은 이유 — 즉각 판정과 무한 반복. <b>기억력이 아니라 판단력</b>을 씁니다(카드는 뒤집히지 않아요).</p>
+          <a class="open-btn" href="templates/pair-game.html" target="_blank" rel="noopener">예시 열어보기</a>
+        </div>
+
+        <div class="card">
+          <h3>🔢 순서대로 배열하기</h3>
+          <p class="desc"><b>&lt;보기&gt;의 카드를 빈 칸에 눌러 채워요.</b> 잘못 놓으면 다시 눌러 빼면 돼요. 확인하면 자리마다 맞았는지 표시됩니다.</p>
+          <p class="uses"><b>이런 데 써요</b> · 부등호로 수 크기 비교 · <b>그래프의 폭·기울기 비교</b> · 계산 순서 · 풀이 단계</p>
+          <p class="why">종이보다 나은 이유 — 지우개 없이 <b>몇 번이든 다시 놓아보며</b> 시행착오할 수 있어요.</p>
+          <a class="open-btn" href="templates/order-game.html" target="_blank" rel="noopener">예시 열어보기</a>
+        </div>
+
+        <div class="card">
+          <h3>📈 식 ↔ 그래프 연결하기</h3>
+          <p class="desc"><b>식을 보고 그래프를 고르고</b>, 거꾸로 <b>그래프를 보고 식을 골라요.</b>
+            그래프는 자동으로 그려지니 식만 정해 주시면 됩니다.</p>
+          <p class="uses"><b>이런 데 써요</b> · 일차함수 기울기·절편 · 이차함수 꼭짓점·폭 · 반비례 · 그래프 해석</p>
+          <p class="why">종이보다 나은 이유 — 비슷하지만 <b>미묘하게 다른 그래프 4개</b>를 나란히 놓고 고르게 할 수 있어요. 판서로는 한 번에 한 장뿐이죠.</p>
+          <a class="open-btn" href="templates/graph-match.html" target="_blank" rel="noopener">예시 열어보기</a>
         </div>
       </div>
-      <p class="uses"><b>이런 데 써요</b> · 일차함수 기울기·절편 · 이차함수 꼭짓점 · 삼각비 단위원 · 부등식 영역</p>
-      <p class="why">종이보다 나은 이유 — 숫자를 바꾸면 <b>모양이 즉시 변하는 걸</b> 눈으로 봐요. 판서로는 한 장에 하나씩만 그릴 수 있죠.</p>
     </div>
 
-    <!-- 데모 2: 주사위 반복 시행 -->
-    <div class="card">
-      <h3>🎲 여러 번 해보면 이렇게 돼요</h3>
-      <div class="demo">
-        <div class="bars" id="diceBars">
-          <div class="bar-col"><div class="bar" id="bar1"></div><span class="bar-label">1</span></div>
-          <div class="bar-col"><div class="bar" id="bar2"></div><span class="bar-label">2</span></div>
-          <div class="bar-col"><div class="bar" id="bar3"></div><span class="bar-label">3</span></div>
-          <div class="bar-col"><div class="bar" id="bar4"></div><span class="bar-label">4</span></div>
-          <div class="bar-col"><div class="bar" id="bar5"></div><span class="bar-label">5</span></div>
-          <div class="bar-col"><div class="bar" id="bar6"></div><span class="bar-label">6</span></div>
+    <!-- 탭 B — 관찰형(자유 생성) -->
+    <div class="panel" id="panel-b">
+      <p class="lead" style="margin-top:-6px">종이로는 못 하는 것들이에요. 아래는 <b>지금 바로 만져보실 수 있는 진짜 예시</b>입니다.</p>
+      <div class="grid">
+
+        <div class="card">
+          <h3>🎚️ 값을 바꾸면 그래프가 변해요</h3>
+          <div class="demo">
+            <svg viewBox="0 0 200 200" role="img" aria-label="일차함수 그래프">
+              <defs><clipPath id="plotClip"><rect x="0" y="0" width="200" height="200"/></clipPath></defs>
+              <g stroke="#e5e7eb" stroke-width="1">
+                <line x1="20" y1="0" x2="20" y2="200"/><line x1="60" y1="0" x2="60" y2="200"/>
+                <line x1="140" y1="0" x2="140" y2="200"/><line x1="180" y1="0" x2="180" y2="200"/>
+                <line x1="0" y1="20" x2="200" y2="20"/><line x1="0" y1="60" x2="200" y2="60"/>
+                <line x1="0" y1="140" x2="200" y2="140"/><line x1="0" y1="180" x2="200" y2="180"/>
+              </g>
+              <g stroke="#9ca3af" stroke-width="1.5">
+                <line x1="0" y1="100" x2="200" y2="100"/><line x1="100" y1="0" x2="100" y2="200"/>
+              </g>
+              <g clip-path="url(#plotClip)">
+                <line id="fnLine" x1="0" y1="100" x2="200" y2="100" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+              </g>
+            </svg>
+            <div class="demo-eq" id="fnEq">y = 1x + 0</div>
+            <div class="demo-row">
+              <label for="slA">기울기 a</label>
+              <input type="range" id="slA" min="-3" max="3" step="0.5" value="1">
+              <span class="demo-val" id="valA">1</span>
+            </div>
+            <div class="demo-row">
+              <label for="slB">y절편 b</label>
+              <input type="range" id="slB" min="-4" max="4" step="1" value="0">
+              <span class="demo-val" id="valB">0</span>
+            </div>
+          </div>
+          <p class="uses"><b>이런 데 써요</b> · 일차함수 기울기·절편 · 이차함수 꼭짓점 · 삼각비 단위원 · 부등식 영역</p>
+          <p class="why">종이보다 나은 이유 — 숫자를 바꾸면 <b>모양이 즉시 변하는 걸</b> 눈으로 봐요. 판서로는 한 장에 하나씩만 그릴 수 있죠.</p>
         </div>
-        <p class="demo-note" id="diceNote">—</p>
-        <div class="demo-btns">
-          <button type="button" class="demo-btn" id="roll10">10번 던지기</button>
-          <button type="button" class="demo-btn" id="roll100">100번</button>
-          <button type="button" class="demo-btn" id="rollReset">처음부터</button>
+
+        <div class="card">
+          <h3>🎲 여러 번 해보면 이렇게 돼요</h3>
+          <div class="demo">
+            <div class="bars" id="diceBars">
+              <div class="bar-col"><div class="bar" id="bar1"></div><span class="bar-label">1</span></div>
+              <div class="bar-col"><div class="bar" id="bar2"></div><span class="bar-label">2</span></div>
+              <div class="bar-col"><div class="bar" id="bar3"></div><span class="bar-label">3</span></div>
+              <div class="bar-col"><div class="bar" id="bar4"></div><span class="bar-label">4</span></div>
+              <div class="bar-col"><div class="bar" id="bar5"></div><span class="bar-label">5</span></div>
+              <div class="bar-col"><div class="bar" id="bar6"></div><span class="bar-label">6</span></div>
+            </div>
+            <p class="demo-note" id="diceNote">—</p>
+            <div class="demo-btns">
+              <button type="button" class="demo-btn" id="roll10">10번 던지기</button>
+              <button type="button" class="demo-btn" id="roll100">100번</button>
+              <button type="button" class="demo-btn" id="rollReset">처음부터</button>
+            </div>
+          </div>
+          <p class="uses"><b>이런 데 써요</b> · 확률의 뜻 · 상대도수 · 큰 수의 법칙 · 표본과 모집단</p>
+          <p class="why">종이보다 나은 이유 — 1000번 던지기를 <b>1초</b>에 해요. 손으로는 평생 못 보는 장면입니다.</p>
+        </div>
+
+        <div class="card">
+          <h3>🪜 한 단계씩 펼쳐 보기</h3>
+          <div class="demo">
+            <div class="steps" id="factorSteps"><div class="step">60</div></div>
+            <div class="demo-btns">
+              <button type="button" class="demo-btn" id="factorNext">다음 단계</button>
+              <button type="button" class="demo-btn" id="factorReset">처음부터</button>
+            </div>
+            <p class="demo-note" id="factorNote">60을 소인수분해해 볼까요?</p>
+          </div>
+          <p class="uses"><b>이런 데 써요</b> · 소인수분해 · 최대공약수(호제법) · 연립방정식 풀이 · 증명 단계</p>
+          <p class="why">종이보다 나은 이유 — 답을 먼저 보여주지 않아요. <b>학생이 예상한 뒤</b> 한 줄씩 확인합니다.</p>
+        </div>
+
+        <div class="card">
+          <h3>🔵 변을 늘리면 원이 돼요</h3>
+          <div class="demo">
+            <svg viewBox="0 0 200 200" role="img" aria-label="정다각형과 원">
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
+              <polygon id="poly" points="" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
+            </svg>
+            <div class="demo-eq" id="polyArea">넓이 ≈ 1.299 × r²</div>
+            <div class="demo-row">
+              <label for="slN">변의 수</label>
+              <input type="range" id="slN" min="3" max="60" step="1" value="3">
+              <span class="demo-val" id="valN">3</span>
+            </div>
+            <p class="demo-note">원의 넓이는 <b>π × r²</b> = 3.141… × r²</p>
+          </div>
+          <p class="uses"><b>이런 데 써요</b> · 원의 넓이·둘레 · 원주율의 뜻 · 극한의 직관 · 도형의 닮음</p>
+          <p class="why">종이보다 나은 이유 — <b>"가까워진다"는 느낌</b>은 움직여야 옵니다. 정지된 그림 두 장으로는 안 돼요.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 슬라이드 2 — 세 가지 질문 ============ -->
+  <section class="slide" data-slide="1">
+    <div class="eyebrow">아이디어 점검</div>
+    <h1>세 가지만 <span class="accent">확인해요</span></h1>
+    <p class="lead">이 셋에 답할 수 있으면 좋은 콘텐츠가 됩니다. 지금 머릿속에 떠오른 걸로 한번 답해 보세요.</p>
+
+    <div class="qbox">
+      <div class="q">
+        <div class="q-num">1</div>
+        <div class="q-body">
+          <h3>종이보다 나은가요?</h3>
+          <p>즉각 피드백 / 랜덤화·무한 재도전 / 시간 압박 / 움직이는 표현 / 개별화 —
+            이 중 <b>하나는</b> 있어야 해요. <b>"화려해서"는 이유가 아니에요.</b></p>
         </div>
       </div>
-      <p class="uses"><b>이런 데 써요</b> · 확률의 뜻 · 상대도수 · 큰 수의 법칙 · 표본과 모집단</p>
-      <p class="why">종이보다 나은 이유 — 1000번 던지기를 <b>1초</b>에 해요. 손으로는 평생 못 보는 장면입니다.</p>
-    </div>
-
-    <!-- 데모 3: 단계 펼치기 -->
-    <div class="card">
-      <h3>🪜 한 단계씩 펼쳐 보기</h3>
-      <div class="demo">
-        <div class="steps" id="factorSteps">
-          <div class="step">60</div>
+      <div class="q">
+        <div class="q-num">2</div>
+        <div class="q-body">
+          <h3>학습이 일어나나요?</h3>
+          <p>학생이 <b>무엇을 하고</b>, <b>어떤 피드백을 받는지</b> 한 줄로 말할 수 있나요?</p>
         </div>
-        <div class="demo-btns">
-          <button type="button" class="demo-btn" id="factorNext">다음 단계</button>
-          <button type="button" class="demo-btn" id="factorReset">처음부터</button>
-        </div>
-        <p class="demo-note" id="factorNote">60을 소인수분해해 볼까요?</p>
       </div>
-      <p class="uses"><b>이런 데 써요</b> · 소인수분해 · 최대공약수(호제법) · 연립방정식 풀이 · 증명 단계</p>
-      <p class="why">종이보다 나은 이유 — 답을 먼저 보여주지 않아요. <b>학생이 예상한 뒤</b> 한 줄씩 확인합니다.</p>
-    </div>
-
-    <!-- 데모 4: 정다각형 → 원 -->
-    <div class="card">
-      <h3>🔵 변을 늘리면 원이 돼요</h3>
-      <div class="demo">
-        <svg viewBox="0 0 200 200" role="img" aria-label="정다각형과 원">
-          <circle cx="100" cy="100" r="80" fill="none" stroke="#e5e7eb" stroke-width="2"/>
-          <polygon id="poly" points="" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
-        </svg>
-        <div class="demo-eq" id="polyArea">넓이 ≈ 1.299 × r²</div>
-        <div class="demo-row">
-          <label for="slN">변의 수</label>
-          <input type="range" id="slN" min="3" max="60" step="1" value="3">
-          <span class="demo-val" id="valN">3</span>
+      <div class="q">
+        <div class="q-num">3</div>
+        <div class="q-body">
+          <h3>알맹이가 있나요?</h3>
+          <p>어떤 개념을 겨냥하나요? 학생들이 자주 하는 <b>그 실수</b>를 노리면 가장 좋아요.</p>
         </div>
-        <p class="demo-note">원의 넓이는 <b>π × r²</b> = 3.141… × r²</p>
       </div>
-      <p class="uses"><b>이런 데 써요</b> · 원의 넓이·둘레 · 원주율의 뜻 · 극한의 직관 · 도형의 닮음</p>
-      <p class="why">종이보다 나은 이유 — <b>"가까워진다"는 느낌</b>은 움직여야 옵니다. 정지된 그림 두 장으로는 안 돼요.</p>
     </div>
 
-  </div>
+    <p class="foot">떠오르는 게 없으셔도 괜찮아요. <b>"우리 반 애들이 자꾸 ○○을 틀려요"</b> 한마디면 충분합니다.</p>
+  </section>
 
-  <!-- ===================== 섹션 C — 3질문 ===================== -->
-  <div class="section-head">
-    <h2>③ 아이디어가 떠오르셨다면, 세 가지만 확인해요</h2>
-    <p>이 셋에 답할 수 있으면 좋은 콘텐츠가 됩니다.</p>
-  </div>
+  <!-- ============ 슬라이드 3 — 어떻게 만들어지나 ============ -->
+  <section class="slide" data-slide="2">
+    <div class="eyebrow">앞으로 10분</div>
+    <h1>선생님의 한마디가 <span class="accent">이렇게 작품이 됩니다</span></h1>
+    <p class="lead">지금부터 이 순서로 진행합니다. 선생님은 <b>말씀만 하시면</b> 됩니다.</p>
 
-  <div class="filter">
-    <ol>
-      <li><b>종이보다 나은가요?</b> — 즉각 피드백 / 랜덤화·무한 재도전 / 시간 압박 / 움직이는 표현 / 개별화 중
-        <b>하나는</b> 있어야 해요. "화려해서"는 이유가 아니에요.</li>
-      <li><b>학습이 일어나나요?</b> — 학생이 <b>무엇을 하고</b>, <b>어떤 피드백을 받는지</b> 한 줄로 말할 수 있나요?</li>
-      <li><b>알맹이가 있나요?</b> — 어떤 개념을 겨냥하나요? 학생들이 자주 하는 <b>그 실수</b>를 노리면 가장 좋아요.</li>
-    </ol>
-  </div>
+    <div class="flow">
+      <div class="fstep">
+        <span class="ftime">3분</span>
+        <div class="fbody">
+          <h3>1. 이야기하기</h3>
+          <p>어떤 학생에게 무엇을 시키고 싶은지 말씀해 주세요. <b>AI가 되묻습니다</b> — 문항 수, 피드백 방식 같은 걸 하나씩 여쭤봐요.</p>
+          <p class="who">선생님이 말하고 · AI가 질문합니다</p>
+        </div>
+      </div>
+      <div class="fstep">
+        <span class="ftime">2분</span>
+        <div class="fbody">
+          <h3>2. 기획 카드로 정리하기 ★</h3>
+          <p>나눈 대화가 <b>네 조각(맥락과 목적 · 작동 · 형태 · 협업)</b>으로 정리돼 화면에 뜹니다.
+            <b>이게 오늘의 핵심</b>이에요 — 집에 가져가실 것도 바로 이겁니다.</p>
+          <p class="who">AI가 정리하고 · 선생님이 확인합니다</p>
+        </div>
+      </div>
+      <div class="fstep code">
+        <span class="ftime">3분</span>
+        <div class="fbody">
+          <h3>3. 만들기 &nbsp;— 코딩은 여기 한 칸입니다</h3>
+          <p>기획 카드를 보고 AI가 코드를 씁니다. 선생님은 <b>기다리시기만</b> 하면 돼요.
+            그동안 옆에서 GitHub 계정을 함께 준비합니다.</p>
+          <p class="who">AI가 만들고 · 진행자가 계정을 준비합니다</p>
+        </div>
+      </div>
+      <div class="fstep">
+        <span class="ftime">함께</span>
+        <div class="fbody">
+          <h3>4. 확인하기</h3>
+          <p>AI가 <b>자기가 낸 문제를 스스로 풀어</b> 정답을 검산합니다. 그다음 화면을 함께 보며
+            <b>선생님이 15초만</b> 확인해 주세요. 수학은 선생님이 최종 확인하셔야 하니까요.</p>
+          <p class="who">AI가 검산하고 · 선생님이 승인합니다</p>
+        </div>
+      </div>
+      <div class="fstep">
+        <span class="ftime">2분</span>
+        <div class="fbody">
+          <h3>5. 인터넷에 올리기</h3>
+          <p>선생님 계정에 올려 <b>누구나 볼 수 있는 주소</b>를 만들고, QR로 폰에 담아 드립니다.</p>
+          <p class="who">선생님이 올리고 · AI가 안내합니다</p>
+        </div>
+      </div>
+    </div>
 
-  <p class="foot">
-    떠오르는 게 없으셔도 괜찮아요. <b>"우리 반 애들이 자꾸 ○○을 틀려요"</b> 한마디면 충분합니다.<br>
-    부스 안내 페이지 · https://2026-bexco-math.vercel.app/
-  </p>
+    <p class="flow-note">보시는 것처럼 <b>코딩은 다섯 칸 중 한 칸</b>입니다.<br>
+      나머지는 전부 <b>무엇을·왜 만들지 정하는 일</b>이에요. 그래서 기획이 90%입니다.</p>
+  </section>
+
+  <!-- ============ 슬라이드 4 — 무엇을 가져가시나 ============ -->
+  <section class="slide" data-slide="3">
+    <div class="eyebrow">10분 뒤</div>
+    <h1>이런 걸 <span class="accent">가져가십니다</span></h1>
+    <p class="lead">오늘 만든 건 여기서 끝나지 않아요. <b>집에서 이어서 만드실 수 있게</b> 챙겨 드립니다.</p>
+
+    <div class="take">
+      <div class="tcard">
+        <h3>📱 내 작품 주소</h3>
+        <p>인터넷에 올라간 <b>진짜 웹페이지</b>입니다. QR로 폰에 담아 가시면
+          내일 교실에서 학생 폰으로 바로 열 수 있어요.</p>
+        <div class="sample">https://<b>내계정</b>.github.io/<b>내저장소</b>/</div>
+      </div>
+
+      <div class="tcard">
+        <h3>📝 다시 쓸 수 있는 프롬프트</h3>
+        <p>저장소에 <b>기획서 형태로</b> 함께 올라갑니다. ChatGPT든 Claude든 새 채팅에 붙여넣으면
+          오늘과 같은 구조로 만들어져요. <b>VS Code 없이 웹 채팅만으로요.</b></p>
+        <ul>
+          <li><b>리믹스용</b> — "이 파일의 문항만 ○○ 단원으로 바꿔 줘"</li>
+          <li><b>처음부터용</b> — 네 조각 + 오늘 문항·정답·해설 전문</li>
+        </ul>
+      </div>
+
+      <div class="tcard">
+        <h3>💡 집에서 더해보실 것</h3>
+        <p>다음에 이런 걸 요청해 보세요. 한 줄이면 바뀝니다.</p>
+        <ul>
+          <li>문항을 10개로 늘리고 <b>랜덤으로 5개만</b> 출제하기</li>
+          <li>제한 시간과 <b>점수 기록</b> 넣기</li>
+          <li>틀린 문제만 모아 <b>다시 풀기</b></li>
+          <li>학년별로 <b>쉬움·보통·어려움</b> 나누기</li>
+          <li>색과 이모지를 우리 반 분위기로 바꾸기</li>
+        </ul>
+      </div>
+
+      <div class="tcard">
+        <h3>✉️ 메일로도 받으실 수 있어요</h3>
+        <p>마지막에 QR을 하나 더 드립니다. <b>폰으로 찍으면 메일 앱이 열리고</b>
+          내용이 채워져 있어요. 본인 주소로 보내시면 링크가 그대로 남습니다.</p>
+        <div class="sample">제목: 오늘 만든 수학 콘텐츠<br>
+          본문: 내 작품 주소 · 저장소(프롬프트) 주소 · 부스 안내 페이지</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 슬라이드 5 — 왜 VS Code + 준비 ============ -->
+  <section class="slide" data-slide="4">
+    <div class="eyebrow">시작하기 전에</div>
+    <h1>그런데 왜 <span class="accent">VS Code</span>로 할까요?</h1>
+    <p class="lead">집에서는 <b>웹 채팅만으로도 충분합니다.</b> 오늘 이 화면을 쓰는 이유는 따로 있어요.</p>
+
+    <div class="why2">
+      <div class="wcard">
+        <h3>🖥️ 오늘, 여기서는</h3>
+        <p>파일을 만들고 → 바로 미리보기로 확인하고 → 인터넷에 올리는 것까지
+          <b>한자리에서 끊김 없이</b> 됩니다.</p>
+        <p>복사·붙여넣기를 오가지 않아서 <b>10분 안에 한 바퀴</b>를 돌 수 있어요.</p>
+      </div>
+      <div class="wcard">
+        <h3>🏠 집에서는</h3>
+        <p>ChatGPT나 Claude 웹 채팅에 <b>오늘 가져가시는 프롬프트</b>를 붙여넣으면 됩니다.</p>
+        <p>코드를 받아 <code>index.html</code>로 저장하고 올리면 똑같이 완성돼요.
+          <b>설치할 것도, 배울 도구도 없습니다.</b></p>
+      </div>
+    </div>
+
+    <div class="ready">
+      <h2>준비되셨나요?</h2>
+      <p>이제 옆 화면에서 시작할게요. <b>"만들고 싶은 것 있으세요?"</b> — 편하게 말씀해 주시면 됩니다.</p>
+    </div>
+
+    <p class="foot">부스 안내 페이지 · https://2026-bexco-math.vercel.app/</p>
+  </section>
 
 </div>
+
+<nav class="nav">
+  <button type="button" class="nav-btn" id="prevBtn">← 이전</button>
+  <div class="dots" id="dots"></div>
+  <button type="button" class="nav-btn primary" id="nextBtn">다음 →</button>
+</nav>
 
 <script>
 (function () {
   'use strict';
+
+  /* ===== 슬라이드 ===== */
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dotsWrap = document.getElementById('dots');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var cur = 0;
+
+  slides.forEach(function (s, i) {
+    var d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'dot' + (i === 0 ? ' on' : '');
+    d.setAttribute('aria-label', (i + 1) + '번째 슬라이드');
+    d.addEventListener('click', function () { go(i); });
+    dotsWrap.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsWrap.children);
+
+  function go(i) {
+    if (i < 0 || i >= slides.length) return;
+    slides[cur].classList.remove('on');
+    dots[cur].classList.remove('on');
+    cur = i;
+    slides[cur].classList.add('on');
+    dots[cur].classList.add('on');
+    prevBtn.disabled = (cur === 0);
+    nextBtn.textContent = (cur === slides.length - 1) ? '처음으로' : '다음 →';
+    window.scrollTo(0, 0);
+  }
+
+  prevBtn.addEventListener('click', function () { go(cur - 1); });
+  nextBtn.addEventListener('click', function () {
+    if (cur === slides.length - 1) { go(0); } else { go(cur + 1); }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') { go(Math.min(cur + 1, slides.length - 1)); }
+    else if (e.key === 'ArrowLeft') { go(cur - 1); }
+  });
+  go(0);
+
+  /* ===== 탭 ===== */
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      tabs.forEach(function (x) { x.classList.remove('on'); });
+      t.classList.add('on');
+      var key = t.getAttribute('data-tab');
+      ['a', 'b'].forEach(function (k) {
+        document.getElementById('panel-' + k).classList.toggle('on', k === key);
+      });
+    });
+  });
 
   /* ===== 데모 1: 일차함수 ===== */
   var slA = document.getElementById('slA');
@@ -339,18 +635,13 @@
     var total = counts.reduce(function (s, c) { return s + c; }, 0);
     var max = Math.max.apply(null, counts);
     bars.forEach(function (bar, i) {
-      var h = max === 0 ? 0 : Math.round((counts[i] / max) * 92);
-      bar.style.height = h + 'px';
+      bar.style.height = (max === 0 ? 0 : Math.round((counts[i] / max) * 92)) + 'px';
     });
-    if (total === 0) {
-      diceNote.textContent = '버튼을 눌러 던져보세요';
-      return;
-    }
+    if (total === 0) { diceNote.textContent = '버튼을 눌러 던져보세요'; return; }
     var pcts = counts.map(function (c) { return c / total * 100; });
     diceNote.textContent = '총 ' + total + '번 · 각 눈 ' + Math.min.apply(null, pcts).toFixed(1) + '% ~ '
       + Math.max.apply(null, pcts).toFixed(1) + '% (이론값 16.7%)';
   }
-
   function roll(n) {
     for (var i = 0; i < n; i++) { counts[Math.floor(Math.random() * 6)]++; }
     renderDice();
@@ -404,8 +695,7 @@
     poly.setAttribute('points', pts.join(' '));
     valN.textContent = n;
     // 정n각형(외접원 반지름 r)의 넓이 = (n/2)·r²·sin(2π/n)
-    var area = (n / 2) * Math.sin(2 * Math.PI / n);
-    polyArea.textContent = '넓이 ≈ ' + area.toFixed(3) + ' × r²';
+    polyArea.textContent = '넓이 ≈ ' + ((n / 2) * Math.sin(2 * Math.PI / n)).toFixed(3) + ' × r²';
   }
   slN.addEventListener('input', drawPoly);
   drawPoly();
