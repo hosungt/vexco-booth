@@ -24,6 +24,9 @@
       "school": "문자열"               // mode가 named일 때만 사용
     },
     "shuffle": { "questions": true, "choices": true },  // 선택, 기본값 false/false
+    "records": true,                 // 선택, 기본값 false. true면 결과 화면에 "내 기록"
+                                      // (localStorage 기반 이 기기의 개인 기록) 섹션을 표시.
+                                      // boolean이 아니거나 없으면 꺼진 것으로 취급(하위 호환).
     "questions": [                   // 필수, 1개 이상
       // choice(객관식)
       {
@@ -201,6 +204,28 @@
   .review-explain { margin: 0; font-size: 14px; color: #6b7280; word-break: keep-all; overflow-wrap: break-word; }
 
   .btn-retry { margin-bottom: 16px; }
+
+  /* ===== quiz 전용: 내 기록(localStorage) 스타일 ===== */
+  .records-section { text-align: left; }
+  .records-title { font-size: 15px; font-weight: 700; margin: 0 0 10px; word-break: keep-all; overflow-wrap: break-word; }
+  .records-newbest {
+    display: flex; align-items: center; gap: 6px;
+    margin: 0 0 12px; padding: 10px 12px; border-radius: 10px;
+    background: var(--primary-light); color: var(--primary-dark);
+    font-weight: 700; font-size: 14px;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+  .records-best { margin: 0 0 12px; font-size: 14px; color: #374151; word-break: keep-all; overflow-wrap: break-word; }
+  .records-best strong { color: var(--primary); font-size: 18px; }
+  .records-list { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+  .records-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 8px 10px; background: #f8fafc; border-radius: 8px;
+    font-size: 13px; color: #374151;
+  }
+  .records-item-score { font-weight: 700; }
+  .records-item-time { color: #6b7280; font-size: 12px; flex: none; }
+  .records-note { margin: 0; font-size: 12px; color: #6b7280; word-break: keep-all; overflow-wrap: break-word; }
 </style>
 </head>
 <body>
@@ -215,6 +240,7 @@
   "theme": "indigo",
   "credit": { "mode": "anonymous", "name": "", "school": "" },
   "shuffle": { "questions": true, "choices": true },
+  "records": true,
   "questions": [
     {
       "type": "choice",
@@ -413,6 +439,63 @@
     return candidates.some(function (c) { return normalizeShort(c) === norm; });
   }
 
+  /* ===== quiz 전용: 내 기록(localStorage) ===== */
+  /* CONFIG.records가 true일 때만 동작. localStorage 접근은 전부 try/catch로 감싸
+     file://·프라이빗 모드 등에서 예외가 나도 퀴즈 진행에는 전혀 영향이 없게 한다. */
+
+  function recordsEnabled(cfg) {
+    return cfg.records === true;
+  }
+
+  function recordsStorageKey(cfg) {
+    return 'booth:' + cfg.template + ':' + cfg.title;
+  }
+
+  function formatRecordTime(ts) {
+    var d = new Date(ts);
+    function pad(n) { return (n < 10 ? '0' : '') + n; }
+    return pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  // 결과 화면 진입 시 1회 호출. 이번 점수를 저장하고, 이전 기록이 있었을 때만
+  // "내 기록" 섹션 HTML을 반환한다(첫 판이거나 localStorage 사용 불가 시 빈 문자열).
+  function buildRecordsSectionHtml(cfg, score, total) {
+    var key = recordsStorageKey(cfg);
+    var prior;
+    try {
+      var raw = localStorage.getItem(key);
+      prior = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(prior)) prior = [];
+    } catch (e) {
+      return '';
+    }
+    var entry = { score: score, total: total, at: Date.now() };
+    if (prior.length === 0) {
+      try { localStorage.setItem(key, JSON.stringify([entry])); } catch (e) { /* 조용히 무시 */ }
+      return '';
+    }
+    var maxPriorScore = prior.reduce(function (m, r) { return Math.max(m, r.score); }, -Infinity);
+    var isNewBest = entry.score > maxPriorScore;
+    var updated = prior.concat([entry]);
+    if (updated.length > 20) updated = updated.slice(updated.length - 20);
+    try { localStorage.setItem(key, JSON.stringify(updated)); } catch (e) { /* 조용히 무시, 화면 표시는 계속 */ }
+    var bestEntry = updated.reduce(function (b, r) { return r.score > b.score ? r : b; }, updated[0]);
+    var recent = updated.slice(-5).reverse();
+    var html = '<div class="card records-section">';
+    html += '<h2 class="records-title">📈 내 기록</h2>';
+    if (isNewBest) {
+      html += '<p class="records-newbest">🎉 최고 기록 경신!</p>';
+    }
+    html += '<p class="records-best">최고 점수 <strong>' + bestEntry.score + ' / ' + bestEntry.total + '</strong></p>';
+    html += '<ul class="records-list">' + recent.map(function (r) {
+      return '<li class="records-item"><span class="records-item-score">' + r.score + ' / ' + r.total + '</span>' +
+        '<span class="records-item-time">' + formatRecordTime(r.at) + '</span></li>';
+    }).join('') + '</ul>';
+    html += '<p class="records-note">기록은 이 기기에만 저장돼요. 다른 사람과 섞이지 않아요.</p>';
+    html += '</div>';
+    return html;
+  }
+
   /* ===== quiz 전용: 상태 · 렌더링 ===== */
 
   var runtime = null;
@@ -537,6 +620,9 @@
           (r.explanation ? '<p class="review-explain">' + renderText(r.explanation) + '</p>' : '') +
           '</div></div>';
       }).join('') + '</div>';
+    }
+    if (recordsEnabled(cfg)) {
+      html += buildRecordsSectionHtml(cfg, runtime.score, total);
     }
     html += '<button type="button" class="btn-primary btn-retry" id="retryBtn">다시 도전</button>';
     html += creditFooterHtml(cfg);

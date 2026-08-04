@@ -30,7 +30,11 @@
     "right": { "label": "문자열" },    // 필수, 오른쪽 버튼 라벨(빈 문자열 불가)
     "cards": [                       // 필수, 2장 이상
       { "text": "문자열", "side": "left|right" }
-    ]
+    ],
+    "records": true                  // 선택(boolean). true면 결과 화면에 "내 기록"(이 기기의
+                                      // localStorage에 쌓이는 개인 기록) 섹션을 표시.
+                                      // 없거나 false면 지금과 동일하게 미표시(하위 호환).
+                                      // boolean이 아닌 값이면 오류 없이 꺼진 것으로 취급.
   }
 
   이스케이프 규칙: 위 script#config 블록은 <script> 태그이므로, 브라우저 HTML 파서는
@@ -156,6 +160,23 @@
   .result-card { text-align: center; }
   .result-score { font-size: 36px; font-weight: 800; color: var(--primary); }
   .result-sub { color: #6b7280; margin-top: 6px; }
+
+  /* ===== speed 전용: 내 기록(선택 기능) ===== */
+  .records-card { text-align: left; }
+  .records-title { font-size: 16px; font-weight: 700; margin: 0 0 10px; text-align: center; }
+  .records-best { text-align: center; font-size: 18px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+  .records-best-val { font-size: 22px; }
+  .records-new-best { text-align: center; color: #16a34a; font-weight: 700; margin: 4px 0 12px; }
+  .records-list { list-style: none; margin: 8px 0 0; padding: 0; }
+  .records-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 4px; border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+  }
+  .records-item:last-child { border-bottom: none; }
+  .records-item-score { font-weight: 700; color: #1f2937; }
+  .records-item-acc { color: #6b7280; }
+  .records-note { text-align: center; font-size: 12px; color: #9ca3af; margin: 12px 0 0; }
 </style>
 </head>
 <body>
@@ -172,6 +193,7 @@
   "speedup": true,
   "left": { "label": "유리수" },
   "right": { "label": "무리수" },
+  "records": true,
   "cards": [
     { "text": "0.333…(3이 반복)", "side": "left" }, { "text": "√2", "side": "right" },
     { "text": "-5", "side": "left" }, { "text": "π", "side": "right" },
@@ -458,10 +480,75 @@
     html += headerHtml(cfg);
     html += '<div class="card result-card"><div class="result-score">' + runtime.score + '점</div>' +
       '<div class="result-sub">정확도 ' + accuracy + '% (' + runtime.correctAnswered + ' / ' + runtime.totalAnswered + ')</div></div>';
+    if (cfg.records === true) {
+      var recordResult = saveRecord(cfg, {
+        score: runtime.score,
+        correct: runtime.correctAnswered,
+        total: runtime.totalAnswered,
+        at: Date.now()
+      });
+      if (recordResult && recordResult.prevHadRecords) {
+        html += recordsSectionHtml(recordResult.list);
+      }
+    }
     html += '<button type="button" class="btn-primary btn-retry" id="retryBtn">다시 도전</button>';
     html += creditFooterHtml(cfg);
     document.getElementById('app').innerHTML = html;
     document.getElementById('retryBtn').addEventListener('click', function () { initRuntime(cfg); });
+  }
+
+  /* ===== speed 전용: 내 기록(localStorage, 선택 기능) =====
+     cfg.records === true 일 때만 사용된다. boolean이 아닌 값(누락 포함)은
+     validateSpeed에서 별도로 검증하지 않고, 여기서 엄격 비교(=== true)로만
+     걸러 "꺼진 것"으로 취급한다 — CONFIG 오류로 막을 만큼 중요한 값이 아니고,
+     행사 당일 사소한 오타로 게임 전체가 에러 화면으로 막히는 상황을 피하기 위함. */
+
+  function recordsKey(cfg) {
+    return 'booth:' + cfg.template + ':' + cfg.title;
+  }
+
+  // 이번 판 기록을 저장하고 { prevHadRecords, list } 를 반환한다.
+  // localStorage 접근/파싱이 실패하면(사생활 보호 모드, file:// 등) null을 반환하며,
+  // 이 경우 호출부는 "내 기록" 섹션을 표시하지 않을 뿐 게임 자체는 정상 동작한다.
+  function saveRecord(cfg, entry) {
+    try {
+      var key = recordsKey(cfg);
+      var raw = localStorage.getItem(key);
+      var prevList = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(prevList)) prevList = [];
+      var newList = [entry].concat(prevList);
+      if (newList.length > 20) newList.length = 20;
+      localStorage.setItem(key, JSON.stringify(newList));
+      return { prevHadRecords: prevList.length > 0, list: newList };
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function recordsSectionHtml(list) {
+    var best = list[0].score;
+    var bestPrior = list[1].score;
+    for (var i = 1; i < list.length; i++) {
+      if (list[i].score > best) best = list[i].score;
+      if (list[i].score > bestPrior) bestPrior = list[i].score;
+    }
+    var isNewBest = list[0].score > bestPrior; // 동점은 "경신"으로 보지 않는다(strict >)
+    var recent = list.slice(0, 5);
+    var itemsHtml = '';
+    for (var j = 0; j < recent.length; j++) {
+      var r = recent[j];
+      var acc = r.total > 0 ? Math.round(r.correct / r.total * 100) : 0;
+      itemsHtml += '<li class="records-item"><span class="records-item-score">' + r.score + '점</span>' +
+        '<span class="records-item-acc">정확도 ' + acc + '%</span></li>';
+    }
+    var badgeHtml = isNewBest ? '<p class="records-new-best">🏆 최고 기록 경신!</p>' : '';
+    return '<div class="card records-card">' +
+      '<h2 class="records-title">내 기록</h2>' +
+      '<div class="records-best">최고 점수 <span class="records-best-val">' + best + '점</span></div>' +
+      badgeHtml +
+      '<ul class="records-list">' + itemsHtml + '</ul>' +
+      '<p class="records-note">기록은 이 기기에만 저장돼요. 다른 사람과 섞이지 않아요.</p>' +
+      '</div>';
   }
 
   /* ===== 부트스트랩 ===== */
