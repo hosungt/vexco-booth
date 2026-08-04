@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  speed-game.html — 스피드 분류 게임 쉘 (schemaVersion 1, template "speed")
+  이 파일은 4개 콘텐츠 쉘(quiz/speed/pair/order) 중 하나이며,
+  아래 "공통 계약" 표시가 붙은 JS/CSS 블록은 templates/quiz.html(공통 계약의 원본)에서
+  그대로 복제했다. 엔진(CSS/JS)은 건드리지 않는다.
+
+  사용법: 이 파일을 복사한 뒤 아래 id="config" 스크립트 블록(JSON) 내용만 교체한다.
+
+  CONFIG 스키마:
+  {
+    "schemaVersion": 1,              // 고정값, 반드시 1
+    "template": "speed",             // 고정값, 반드시 "speed"
+    "title": "문자열",                 // 필수, 화면 상단 제목
+    "subtitle": "문자열",              // 선택, 제목 아래 부제
+    "theme": "indigo|pink|green|violet|teal|amber",  // 필수, 6종 중 하나
+    "credit": {                      // 필수
+      "mode": "anonymous|named",     // anonymous: 무기명 / named: 이름·학교 표기
+      "name": "문자열",                // mode가 named일 때만 사용
+      "school": "문자열"               // mode가 named일 때만 사용
+    },
+    "timeLimitSec": 60,              // 필수, 양수(초 단위 전체 제한시간, 유일한 종료 조건)
+    "speedup": true,                 // 필수(boolean). true면 정답 누적 5개마다 카드 전환 지연이
+                                      // 100ms씩 감소(최소 200ms), false면 지연 500ms 고정
+    "left": { "label": "문자열" },     // 필수, 왼쪽 버튼 라벨(빈 문자열 불가)
+    "right": { "label": "문자열" },    // 필수, 오른쪽 버튼 라벨(빈 문자열 불가)
+    "cards": [                       // 필수, 2장 이상
+      { "text": "문자열", "side": "left|right" }
+    ]
+  }
+
+  이스케이프 규칙: 위 script#config 블록은 <script> 태그이므로, 브라우저 HTML 파서는
+  이 블록 안에서도 "</script" 로 시작하는 문자열을 만나면 태그를 즉시 조기 종료시킨다.
+  따라서 CONFIG의 어떤 문자열 값에 "</" 시퀀스가 들어가면 반드시 "<\/" 로 이스케이프해서
+  적는다. 예: text에 "a</b>" 를 쓰고 싶다면 "a<\/b>" 로 적을 것.
+
+  렌더링 규칙: 모든 CONFIG 문자열은 renderText()로 escape 후 &lt;sup&gt;/&lt;sub&gt;
+  태그만 화이트리스트로 되돌려 <sup>/<sub>(제곱·아래첨자 표기)만 허용한다.
+-->
+<title>스피드 게임</title>
+<style>
+  /* ===== 공통 계약: 기본 리셋 · 폰트 · 레이아웃 (모든 쉘 동일) ===== */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: #f8fafc;
+    color: #1f2937;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+  #app {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+  }
+
+  /* ===== 공통 계약: 테마 프리셋 CSS 변수 6종 (모든 쉘 동일) ===== */
+  body.theme-indigo { --primary:#4f46e5; --primary-light:#eef2ff; --primary-dark:#4338ca; }
+  body.theme-pink   { --primary:#db2777; --primary-light:#fdf2f8; --primary-dark:#be185d; }
+  body.theme-green  { --primary:#16a34a; --primary-light:#f0fdf4; --primary-dark:#15803d; }
+  body.theme-violet { --primary:#7c3aed; --primary-light:#f5f3ff; --primary-dark:#6d28d9; }
+  body.theme-teal   { --primary:#0d9488; --primary-light:#f0fdfa; --primary-dark:#0f766e; }
+  body.theme-amber  { --primary:#d97706; --primary-light:#fffbeb; --primary-dark:#b45309; }
+
+  /* ===== 공통 계약: 에러 카드 (showError가 사용, 모든 쉘 동일) ===== */
+  .error-card {
+    max-width: 480px;
+    margin: 80px auto;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  }
+  .error-icon { font-size: 32px; margin-bottom: 12px; }
+  .error-msg { color: #374151; font-size: 15px; white-space: pre-wrap; word-break: break-word; margin: 0; }
+
+  /* ===== 공통 계약: credit 푸터 (모든 쉘 동일) ===== */
+  .credit { text-align: center; font-size: 12px; color: #6b7280; margin-top: 24px; }
+
+  /* 공통 JS 함수 headerHtml()이 사용하는 헤더 스타일 (quiz.html에서 동일하게 복제) */
+  .app-header { text-align: center; margin-bottom: 16px; }
+  .app-title { font-size: 20px; font-weight: 700; margin: 0 0 4px; word-break: keep-all; }
+  .app-subtitle { font-size: 14px; color: #6b7280; margin: 0; word-break: keep-all; }
+
+  /* ===== speed 전용 스타일 ===== */
+  .card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    margin-bottom: 16px;
+  }
+
+  .stats-bar {
+    display: flex;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 12px 8px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  .stat { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+  .stat-label { font-size: 12px; color: #6b7280; }
+  .stat-val { font-size: 20px; font-weight: 800; color: var(--primary); }
+
+  .speed-card {
+    position: relative;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    border: 3px solid transparent;
+    transition: border-color .15s ease, background-color .15s ease;
+  }
+  .speed-card.correct { border-color: #16a34a; background: #f0fdf4; }
+  .speed-card.wrong { border-color: #dc2626; background: #fef2f2; }
+  .speed-card-text {
+    flex: 1; min-width: 0;
+    font-size: 28px; font-weight: 800; margin: 0;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+  .speed-feedback { position: absolute; top: 10px; right: 14px; }
+  .speed-fb-icon { font-size: 26px; font-weight: 800; }
+  .speed-card.correct .speed-fb-icon { color: #16a34a; }
+  .speed-card.wrong .speed-fb-icon { color: #dc2626; }
+
+  .speed-buttons { display: flex; gap: 12px; margin-bottom: 16px; }
+  .speed-btn {
+    flex: 1; min-width: 0; min-height: 64px;
+    border: 2px solid #e5e7eb; border-radius: 12px;
+    background: #ffffff; color: #1f2937;
+    font-size: 18px; font-weight: 700; cursor: pointer; font-family: inherit;
+    padding: 12px 8px;
+    word-break: keep-all; overflow-wrap: break-word;
+  }
+  .speed-btn:not(:disabled):hover { border-color: var(--primary); }
+  .speed-btn:not(:disabled):active { background: var(--primary-light); }
+  .speed-btn:disabled { opacity: .5; cursor: default; }
+
+  .btn-primary {
+    display: block; width: 100%; min-height: 48px;
+    background: var(--primary); color: #ffffff; border: none; border-radius: 12px;
+    font-size: 16px; font-weight: 700; cursor: pointer; font-family: inherit;
+    padding: 12px 16px;
+  }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-retry { margin-bottom: 16px; }
+
+  .result-card { text-align: center; }
+  .result-score { font-size: 36px; font-weight: 800; color: var(--primary); }
+  .result-sub { color: #6b7280; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script type="application/json" id="config">
+{
+  "schemaVersion": 1,
+  "template": "speed",
+  "title": "유리수 vs 무리수",
+  "theme": "green",
+  "credit": { "mode": "anonymous", "name": "", "school": "" },
+  "timeLimitSec": 60,
+  "speedup": true,
+  "left": { "label": "유리수" },
+  "right": { "label": "무리수" },
+  "cards": [
+    { "text": "0.333…(3이 반복)", "side": "left" }, { "text": "√2", "side": "right" },
+    { "text": "-5", "side": "left" }, { "text": "π", "side": "right" },
+    { "text": "22/7", "side": "left" }, { "text": "√9", "side": "left" },
+    { "text": "0.101001000…(0이 하나씩 늘어남)", "side": "right" }, { "text": "0", "side": "left" },
+    { "text": "√5", "side": "right" }, { "text": "1.414", "side": "left" },
+    { "text": "-√3", "side": "right" }, { "text": "7/3", "side": "left" }
+  ]
+}
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ===== 공통 계약 (모든 쉘 동일) — quiz.html에서 그대로 복제 ===== */
+
+  function getConfig() {
+    var parsed;
+    try {
+      parsed = JSON.parse(document.getElementById('config').textContent);
+    } catch (e) {
+      showError('CONFIG 오류: JSON 문법 — ' + e.message);
+      return null;
+    }
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      showError('CONFIG 오류: CONFIG는 JSON 객체({ ... })여야 합니다. 현재 값의 타입을 확인해 주세요.');
+      return null;
+    }
+    return parsed;
+  }
+
+  function showError(msg) {
+    var app = document.getElementById('app');
+    app.innerHTML = '<div class="error-card"><div class="error-icon">⚠️</div><p class="error-msg"></p></div>';
+    app.querySelector('.error-msg').textContent = msg;
+  }
+
+  function validateCommon(cfg) {
+    if (cfg.schemaVersion !== 1) {
+      showError('CONFIG 오류: schemaVersion이 1이 아닙니다.');
+      return false;
+    }
+    if (cfg.template !== 'speed') {
+      showError('CONFIG 오류: template이 "speed"가 아닙니다.');
+      return false;
+    }
+    if (typeof cfg.title !== 'string' || cfg.title.length === 0) {
+      showError('CONFIG 오류: title이 없거나 빈 문자열입니다.');
+      return false;
+    }
+    if (['indigo', 'pink', 'green', 'violet', 'teal', 'amber'].indexOf(cfg.theme) === -1) {
+      showError('CONFIG 오류: theme 값이 올바르지 않습니다. (indigo/pink/green/violet/teal/amber 중 하나)');
+      return false;
+    }
+    if (!cfg.credit || ['anonymous', 'named'].indexOf(cfg.credit.mode) === -1) {
+      showError('CONFIG 오류: credit.mode 값이 올바르지 않습니다. (anonymous/named 중 하나)');
+      return false;
+    }
+    return true;
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderText(s) {
+    return escapeHtml(s)
+      .replace(/&lt;sup&gt;/g, '<sup>')
+      .replace(/&lt;\/sup&gt;/g, '</sup>')
+      .replace(/&lt;sub&gt;/g, '<sub>')
+      .replace(/&lt;\/sub&gt;/g, '</sub>');
+  }
+
+  function applyTheme(cfg) {
+    document.body.classList.add('theme-' + cfg.theme);
+  }
+
+  function creditFooterHtml(cfg) {
+    var c = cfg.credit;
+    var text;
+    if (c.mode === 'anonymous') {
+      text = '2026 과학·수학·정보 교사 컨퍼런스에서 제작';
+    } else {
+      text = renderText(c.name || '') + ' 선생님 (' + renderText(c.school || '') + ') · 2026 과학·수학·정보 교사 컨퍼런스';
+    }
+    return '<footer class="credit">' + text + '</footer>';
+  }
+
+  function headerHtml(cfg) {
+    var sub = cfg.subtitle ? '<p class="app-subtitle">' + renderText(cfg.subtitle) + '</p>' : '';
+    return '<header class="app-header"><h1 class="app-title">' + renderText(cfg.title) + '</h1>' + sub + '</header>';
+  }
+
+  /* ===== 공통 계약 끝 ===== */
+
+  /* ===== speed 전용: 검증 ===== */
+
+  function validateSpeed(cfg) {
+    if (!Array.isArray(cfg.cards) || cfg.cards.length < 2) {
+      showError('CONFIG 오류: cards가 2장 미만입니다.');
+      return false;
+    }
+    for (var i = 0; i < cfg.cards.length; i++) {
+      var c = cfg.cards[i];
+      var n = i + 1;
+      if (!c || typeof c.text !== 'string' || c.text.length === 0) {
+        showError('CONFIG 오류: ' + n + '번째 카드의 text가 없거나 빈 문자열입니다.');
+        return false;
+      }
+      if (['left', 'right'].indexOf(c.side) === -1) {
+        showError('CONFIG 오류: ' + n + '번째 카드의 side가 올바르지 않습니다. (left/right 중 하나)');
+        return false;
+      }
+    }
+    if (typeof cfg.timeLimitSec !== 'number' || !(cfg.timeLimitSec > 0)) {
+      showError('CONFIG 오류: timeLimitSec은 양수여야 합니다.');
+      return false;
+    }
+    if (!cfg.left || typeof cfg.left.label !== 'string' || cfg.left.label.length === 0) {
+      showError('CONFIG 오류: left.label이 없거나 빈 문자열입니다.');
+      return false;
+    }
+    if (!cfg.right || typeof cfg.right.label !== 'string' || cfg.right.label.length === 0) {
+      showError('CONFIG 오류: right.label이 없거나 빈 문자열입니다.');
+      return false;
+    }
+    return true;
+  }
+
+  /* ===== speed 전용: 셔플 헬퍼 ===== */
+
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  /* ===== speed 전용: 상태 · 렌더링 ===== */
+
+  var runtime = null;
+
+  function initRuntime(cfg) {
+    if (runtime && runtime.timerId) clearInterval(runtime.timerId);
+    if (runtime && runtime.nextTimeoutId) clearTimeout(runtime.nextTimeoutId);
+    runtime = {
+      cfg: cfg,
+      pool: shuffleArray(cfg.cards),
+      poolIdx: 0,
+      currentCard: null,
+      score: 0,
+      multiplier: 1,
+      consecutiveCorrect: 0,
+      totalCorrect: 0,
+      currentDelay: 500,
+      timeLeft: cfg.timeLimitSec,
+      totalAnswered: 0,
+      correctAnswered: 0,
+      answered: false,
+      ended: false,
+      timerId: null,
+      nextTimeoutId: null
+    };
+    renderGameScreen();
+    showNextCard();
+    runtime.timerId = setInterval(tickTimer, 1000);
+  }
+
+  function tickTimer() {
+    if (runtime.ended) return;
+    runtime.timeLeft--;
+    updateTimeDisplay();
+    if (runtime.timeLeft <= 0) {
+      endGame();
+    }
+  }
+
+  function updateTimeDisplay() {
+    var el = document.getElementById('timeVal');
+    if (el) el.textContent = Math.max(0, runtime.timeLeft) + '초';
+  }
+
+  function updateStatsDisplay() {
+    document.getElementById('scoreVal').textContent = runtime.score;
+    document.getElementById('multVal').textContent = '×' + runtime.multiplier;
+    updateTimeDisplay();
+  }
+
+  function statsBarHtml() {
+    return '<div class="stats-bar">' +
+      '<div class="stat"><span class="stat-label">점수</span><span class="stat-val" id="scoreVal">0</span></div>' +
+      '<div class="stat"><span class="stat-label">배수</span><span class="stat-val" id="multVal">×1</span></div>' +
+      '<div class="stat"><span class="stat-label">남은 시간</span><span class="stat-val" id="timeVal">' + runtime.timeLeft + '초</span></div>' +
+      '</div>';
+  }
+
+  function renderGameScreen() {
+    var cfg = runtime.cfg;
+    var html = '';
+    html += headerHtml(cfg);
+    html += statsBarHtml();
+    html += '<div class="card speed-card" id="speedCard">' +
+      '<div class="speed-feedback" id="speedFeedback"></div>' +
+      '<p class="speed-card-text" id="cardText"></p></div>';
+    html += '<div class="speed-buttons">' +
+      '<button type="button" class="speed-btn" id="leftBtn">' + renderText(cfg.left.label) + '</button>' +
+      '<button type="button" class="speed-btn" id="rightBtn">' + renderText(cfg.right.label) + '</button>' +
+      '</div>';
+    html += creditFooterHtml(cfg);
+    document.getElementById('app').innerHTML = html;
+    document.getElementById('leftBtn').addEventListener('click', function () { answer('left'); });
+    document.getElementById('rightBtn').addEventListener('click', function () { answer('right'); });
+  }
+
+  function showNextCard() {
+    if (runtime.ended) return;
+    runtime.currentCard = runtime.pool[runtime.poolIdx % runtime.pool.length];
+    runtime.poolIdx++;
+    runtime.answered = false;
+    document.getElementById('cardText').innerHTML = renderText(runtime.currentCard.text);
+    var speedCard = document.getElementById('speedCard');
+    speedCard.classList.remove('correct', 'wrong');
+    document.getElementById('speedFeedback').innerHTML = '';
+    setButtonsDisabled(false);
+  }
+
+  function setButtonsDisabled(disabled) {
+    document.getElementById('leftBtn').disabled = disabled;
+    document.getElementById('rightBtn').disabled = disabled;
+  }
+
+  function answer(side) {
+    if (runtime.answered || runtime.ended) return;
+    runtime.answered = true;
+    setButtonsDisabled(true);
+    var cfg = runtime.cfg;
+    var correct = side === runtime.currentCard.side;
+    runtime.totalAnswered++;
+    if (correct) {
+      runtime.correctAnswered++;
+      runtime.score += 10 * runtime.multiplier;
+      runtime.consecutiveCorrect++;
+      runtime.totalCorrect++;
+      if (runtime.consecutiveCorrect % 3 === 0 && runtime.multiplier < 4) {
+        runtime.multiplier++;
+      }
+      if (cfg.speedup && runtime.totalCorrect % 5 === 0) {
+        runtime.currentDelay = Math.max(200, runtime.currentDelay - 100);
+      }
+    } else {
+      runtime.consecutiveCorrect = 0;
+      runtime.multiplier = 1;
+    }
+    updateStatsDisplay();
+    var speedCard = document.getElementById('speedCard');
+    speedCard.classList.add(correct ? 'correct' : 'wrong');
+    document.getElementById('speedFeedback').innerHTML = '<span class="speed-fb-icon">' + (correct ? '○' : '×') + '</span>';
+    runtime.nextTimeoutId = setTimeout(function () {
+      if (runtime.ended) return;
+      showNextCard();
+    }, runtime.currentDelay);
+  }
+
+  function endGame() {
+    if (runtime.ended) return;
+    runtime.ended = true;
+    if (runtime.timerId) clearInterval(runtime.timerId);
+    if (runtime.nextTimeoutId) clearTimeout(runtime.nextTimeoutId);
+    renderResultScreen();
+  }
+
+  function renderResultScreen() {
+    var cfg = runtime.cfg;
+    var accuracy = runtime.totalAnswered > 0 ? Math.round(runtime.correctAnswered / runtime.totalAnswered * 100) : 0;
+    var html = '';
+    html += headerHtml(cfg);
+    html += '<div class="card result-card"><div class="result-score">' + runtime.score + '점</div>' +
+      '<div class="result-sub">정확도 ' + accuracy + '% (' + runtime.correctAnswered + ' / ' + runtime.totalAnswered + ')</div></div>';
+    html += '<button type="button" class="btn-primary btn-retry" id="retryBtn">다시 도전</button>';
+    html += creditFooterHtml(cfg);
+    document.getElementById('app').innerHTML = html;
+    document.getElementById('retryBtn').addEventListener('click', function () { initRuntime(cfg); });
+  }
+
+  /* ===== 부트스트랩 ===== */
+
+  var cfg = getConfig();
+  if (cfg && validateCommon(cfg) && validateSpeed(cfg)) {
+    applyTheme(cfg);
+    document.title = cfg.title;
+    initRuntime(cfg);
+  }
+})();
+</script>
+</body>
+</html>
