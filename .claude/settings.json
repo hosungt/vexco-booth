@@ -7,7 +7,7 @@
       "Bash(node -e:*)",
       "Bash(explorer.exe:*)",
       "Bash(cmd //c start:*)",
-      "Bash(cp:*)", "Bash(mkdir:*)", "Bash(ls:*)"
+      "Bash(cp:*)", "Bash(mkdir:*)", "Bash(ls:*)", "Bash(cat:*)"
     ],
     "deny": [
       "Bash(gh:*)",

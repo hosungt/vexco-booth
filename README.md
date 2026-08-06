@@ -134,6 +134,7 @@ Claude Code를 못 띄우면 **기획 체험만으로도 세션은 성립합니�
 | Claude가 하는 **말·질문·순서·타이밍** | `.claude/skills/booth/SKILL.md` ← 대부분 여기 |
 | **시작 슬라이드**(예시·3질문·진행 방식·가져갈 것) | `gallery.html` |
 | **콘텐츠 엔진**(문제 화면 동작·디자인) | `templates/quiz.html` 등 5개 |
+| 선생님이 **가져가는 README의 공통 안내**(고치는 법·프롬프트·배포·AI에게 묻기) | `templates/readme-guide.md` |
 | 아이디어 **씨앗 목록** | `seeds.md` |
 | **기능 요청 대응·제안** 목록 | `extras.md` |
 | **인쇄 유인물** | `handout.html` |
